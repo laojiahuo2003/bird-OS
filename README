@@ -1,45 +1,21 @@
-xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
-Version 6 (v6).  xv6 loosely follows the structure and style of v6,
-but is implemented for a modern RISC-V multiprocessor using ANSI C.
+# 开发路程：bird-os
 
-ACKNOWLEDGMENTS
+## 项目起步 - 2024年11月13日
+- **确定项目目标：**
+  - 基于 **xv6** 操作系统的架构，开发一个简化、模块化的操作系统，名为 **bird-os**。
+  - **bird-os** 将具备基本的操作系统功能，如进程管理、内存管理、文件系统和设备驱动等。
+  - 项目目标不仅是实现一个操作系统，更是通过该项目进一步理解操作系统原理和体系结构。
 
-xv6 is inspired by John Lions's Commentary on UNIX 6th Edition (Peer
-to Peer Communications; ISBN: 1-57398-013-7; 1st edition (June 14,
-2000)). See also https://pdos.csail.mit.edu/6.828/, which
-provides pointers to on-line resources for v6.
+- **技术选型：**
+  - 基于 **xv6** 操作系统，它采用了简洁的 Unix v6 样式，适合进行扩展和学习。
+  - 使用 **RISC-V** 架构，以提高系统的可移植性和现代硬件支持。
+  - 编程语言：**C语言**（与 **xv6** 保持一致）。
 
-The following people have made contributions: Russ Cox (context switching,
-locking), Cliff Frey (MP), Xiao Yu (MP), Nickolai Zeldovich, and Austin
-Clements.
+## 第一阶段：基础系统架构搭建 - 2024年11月15日
+- **搭建开发环境：**
+  - 安装并配置 **RISC-V 工具链** 和 **QEMU** 模拟器，确保能够构建和运行 xv6。
+  - 克隆 **xv6** 源代码并成功编译和运行。
+  - 配置本地开发环境，包括 IDE（如 VS Code 或 Vim）和必要的调试工具。
 
-We are also grateful for the bug reports and patches contributed by
-Silas Boyd-Wickizer, Anton Burtsev, Dan Cross, Cody Cutler, Mike CAT,
-Tej Chajed, Asami Doi, eyalz800, , Nelson Elhage, Saar Ettinger, Alice
-Ferrazzi, Nathaniel Filardo, Peter Froehlich, Yakir Goaron,Shivam
-Handa, Bryan Henry, jaichenhengjie, Jim Huang, Alexander Kapshuk,
-Anders Kaseorg, kehao95, Wolfgang Keller, Jonathan Kimmitt, Eddie
-Kohler, Austin Liew, Imbar Marinescu, Yandong Mao, Matan Shabtay,
-Hitoshi Mitake, Carmi Merimovich, Mark Morrissey, mtasm, Joel Nider,
-Greg Price, Ayan Shafqat, Eldar Sehayek, Yongming Shen, Fumiya
-Shigemitsu, Takahiro, Cam Tenny, tyfkda, Rafael Ubal, Warren Toomey,
-Stephen Tu, Pablo Ventura, Xi Wang, Keiichi Watanabe, Nicolas
-Wolovick, wxdao, Grant Wu, Jindong Zhang, Icenowy Zheng, and Zou Chang
-Wei.
-
-The code in the files that constitute xv6 is
-Copyright 2006-2020 Frans Kaashoek, Robert Morris, and Russ Cox.
-
-ERROR REPORTS
-
-Please send errors and suggestions to Frans Kaashoek and Robert Morris
-(kaashoek,rtm@mit.edu). The main purpose of xv6 is as a teaching
-operating system for MIT's 6.S081, so we are more interested in
-simplifications and clarifications than new features.
-
-BUILDING AND RUNNING XV6
-
-You will need a RISC-V "newlib" tool chain from
-https://github.com/riscv/riscv-gnu-toolchain, and qemu compiled for
-riscv64-softmmu. Once they are installed, and in your shell
-search path, you can run "make qemu".
+- **系统架构设计：**
+  - 在 **xv6** 的基础上，设计 **bird-os** 的初步架构。确保系统能顺利运行在 RISC-V 架构上，并且后续能添加模块和特性。

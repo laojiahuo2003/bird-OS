@@ -89,8 +89,7 @@ allocpid() {
 // If found, initialize state required to run in the kernel,
 // and return with p->lock held.
 // If there are no free procs, or a memory allocation fails, return 0.
-static struct proc*
-allocproc(void)
+static struct proc* allocproc(void)
 {
   struct proc *p;
 
@@ -106,7 +105,7 @@ allocproc(void)
 
 found:
   p->pid = allocpid();
-
+  p->priority = 10; //设定优先级为10
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     release(&p->lock);
@@ -692,4 +691,23 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int cps(void)
+{
+  struct proc *p; //定义一个结构体(进程控制块)
+  // stati();	// 中断
+  // acquire(&proc[0].lock); //加锁
+  printf("name \t pid \t state \t \t priority \n"); //罗列所有的pid
+  for(p = proc; p < &proc[NPROC]; p++)  //NPROC为64
+  {
+    if(p->state == SLEEPING) //睡眠
+    printf("%s \t %d \t SLEEPING \t %d\n", p->name, p->pid, p->priority);
+    else if(p->state == RUNNING) //正在执行
+    printf("%s \t %d \t RUNNING \t %d\n", p->name, p->pid, p->priority);
+    else if(p->state == RUNNABLE) //可运行队列
+    printf("%s \t %d \t RUNNABLE \t %d\n", p->name, p->pid, p->priority);
+  }
+  // release(&ptable.lock); //释放锁
+  return 22; //返回22
 }

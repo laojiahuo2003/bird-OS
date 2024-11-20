@@ -22,15 +22,14 @@ static void freeproc(struct proc *p);
 extern char trampoline[]; // trampoline.S
 
 // initialize the proc table at boot time.
-void
-procinit(void)
+void procinit(void)
 {
   struct proc *p;
   
   initlock(&pid_lock, "nextpid");
   for(p = proc; p < &proc[NPROC]; p++) {
       initlock(&p->lock, "proc");
-
+      //为每个进程分配一个内核栈。它将每个栈映射在KSTACK生成的虚拟地址上，这就为栈守护页留下了空间
       // Allocate a page for the process's kernel stack.
       // Map it high in memory, followed by an invalid
       // guard page.
@@ -38,10 +37,10 @@ procinit(void)
       if(pa == 0)
         panic("kalloc");
       uint64 va = KSTACK((int) (p - proc));
-      kvmmap(va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
+      kvmmap(va, (uint64)pa, PGSIZE, PTE_R | PTE_W);//将对应的页表项加入内核页表
       p->kstack = va;
   }
-  kvminithart();
+  kvminithart();//调用kvminithart将内核页表重新加载到satp中
 }
 
 // Must be called with interrupts disabled,
@@ -89,11 +88,10 @@ allocpid() {
 // If found, initialize state required to run in the kernel,
 // and return with p->lock held.
 // If there are no free procs, or a memory allocation fails, return 0.
-static struct proc*
-allocproc(void)
+static struct proc* allocproc(void)
 {
   struct proc *p;
-
+  
   for(p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if(p->state == UNUSED) {
@@ -106,7 +104,8 @@ allocproc(void)
 
 found:
   p->pid = allocpid();
-
+  p->priority = 10; //设定优先级为10
+  p->trace_mask = 0;//设定掩码为0
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     release(&p->lock);
@@ -255,8 +254,7 @@ growproc(int n)
 
 // Create a new process, copying the parent.
 // Sets up child kernel stack to return as if from fork() system call.
-int
-fork(void)
+int fork(void)
 {
   int i, pid;
   struct proc *np;
@@ -294,7 +292,7 @@ fork(void)
   pid = np->pid;
 
   np->state = RUNNABLE;
-
+  np->trace_mask=p->trace_mask;//从父进程复制trace mask到子进程
   release(&np->lock);
 
   return pid;
@@ -692,4 +690,23 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int cps(void)
+{
+  struct proc *p; //定义一个结构体(进程控制块)
+  // stati();	// 中断
+  // acquire(&proc[0].lock); //加锁
+  printf("name \t pid \t state \t \t priority \n"); //罗列所有的pid
+  for(p = proc; p < &proc[NPROC]; p++)  //NPROC为64
+  {
+    if(p->state == SLEEPING) //睡眠
+    printf("%s \t %d \t SLEEPING \t %d\n", p->name, p->pid, p->priority);
+    else if(p->state == RUNNING) //正在执行
+    printf("%s \t %d \t RUNNING \t %d\n", p->name, p->pid, p->priority);
+    else if(p->state == RUNNABLE) //可运行队列
+    printf("%s \t %d \t RUNNABLE \t %d\n", p->name, p->pid, p->priority);
+  }
+  // release(&ptable.lock); //释放锁
+  return 22; //返回22
 }

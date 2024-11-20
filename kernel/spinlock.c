@@ -18,33 +18,30 @@ initlock(struct spinlock *lk, char *name)
 
 // Acquire the lock.
 // Loops (spins) until the lock is acquired.
-void
-acquire(struct spinlock *lk)
+void acquire(struct spinlock *lk)
 {
-  push_off(); // disable interrupts to avoid deadlock.
-  if(holding(lk))
-    panic("acquire");
+  push_off(); // 关中断，避免死锁
+  if(holding(lk))//检查是否已经持有锁
+    panic("acquire");//如果已有，则处理错误
 
   // On RISC-V, sync_lock_test_and_set turns into an atomic swap:
   //   a5 = 1
   //   s1 = &lk->locked
   //   amoswap.w.aq a5, a5, (s1)
-  while(__sync_lock_test_and_set(&lk->locked, 1) != 0)
-    ;
+  while(__sync_lock_test_and_set(&lk->locked, 1) != 0);//原子操作
 
   // Tell the C compiler and the processor to not move loads or stores
   // past this point, to ensure that the critical section's memory
   // references happen strictly after the lock is acquired.
   // On RISC-V, this emits a fence instruction.
-  __sync_synchronize();
+  __sync_synchronize();//防止编译器优化，确保后续的任何操作都是上锁之后进行
 
   // Record info about lock acquisition for holding() and debugging.
   lk->cpu = mycpu();
 }
 
 // Release the lock.
-void
-release(struct spinlock *lk)
+void release(struct spinlock *lk)
 {
   if(!holding(lk))
     panic("release");
@@ -66,15 +63,14 @@ release(struct spinlock *lk)
   // On RISC-V, sync_lock_release turns into an atomic swap:
   //   s1 = &lk->locked
   //   amoswap.w zero, zero, (s1)
-  __sync_lock_release(&lk->locked);
+  __sync_lock_release(&lk->locked);//原子操作
 
-  pop_off();
+  pop_off();//开中断
 }
 
 // Check whether this cpu is holding the lock.
 // Interrupts must be off.
-int
-holding(struct spinlock *lk)
+int holding(struct spinlock *lk)
 {
   int r;
   r = (lk->locked && lk->cpu == mycpu());
@@ -88,12 +84,11 @@ holding(struct spinlock *lk)
 void
 push_off(void)
 {
-  int old = intr_get();
-
-  intr_off();
-  if(mycpu()->noff == 0)
+  int old = intr_get();//获取关中断之前的中断状态
+  intr_off();//关中断
+  if(mycpu()->noff == 0)//第一次上锁，保存关中断之前的中断状态
     mycpu()->intena = old;
-  mycpu()->noff += 1;
+  mycpu()->noff += 1;//锁的个数增加
 }
 
 void
@@ -104,7 +99,7 @@ pop_off(void)
     panic("pop_off - interruptible");
   if(c->noff < 1)
     panic("pop_off");
-  c->noff -= 1;
-  if(c->noff == 0 && c->intena)
+  c->noff -= 1;//锁的个数减少
+  if(c->noff == 0 && c->intena)//如果当前所有锁已释放而且上锁之前是开中断
     intr_on();
 }

@@ -26,8 +26,12 @@ struct {
 void
 kinit()
 {
-  initlock(&kmem.lock, "kmem");
+  initlock(&kmem.lock, "kmem");// 初始化锁
+  //end()表示是内核区域后第一个可用的地址，(void*)PHYSTOP表示的是物理地址的结束地址
   freerange(end, (void*)PHYSTOP);
+  /*  将第一个可用的内存到最后一个可用的内存分成一页一页的
+    * 并将这些页添加到空闲页链表中
+  */
 }
 
 void

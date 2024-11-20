@@ -25,9 +25,9 @@ main()
     printf("\n");
     printf("bird-os is booting\n");
     printf("\n");
-    kinit();         // physical page allocator
-    kvminit();       // create kernel page table
-    kvminithart();   // 把内核页表地址放入当前CPU核的页表基地寄存器(satp)中
+    kinit();         // 初始化内存，将所有可用内存切碎
+    kvminit();       // 创建内核页表，完成内核虚拟地址映射
+    kvminithart();   // 把内核页表物理地址放入当前CPU核的页表基地寄存器(satp)中
     procinit();      // process table
     trapinit();      // trap vectors
     trapinithart();  // install kernel trap vector
@@ -38,7 +38,7 @@ main()
     fileinit();      // file table
     virtio_disk_init(); // emulated hard disk
     userinit();      // first user process
-    __sync_synchronize();
+    __sync_synchronize();//防止编译器优化，确保后续的任何操作都是初始化之后进行
     started = 1;
   } else {
     while(started == 0)

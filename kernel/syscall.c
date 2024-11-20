@@ -105,7 +105,7 @@ extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
 extern uint64 sys_cps(void);
-
+extern uint64 sys_trace(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -130,16 +130,45 @@ static uint64 (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_cps]     sys_cps,
+[SYS_trace]   sys_trace,
 };//这些索引会从1开始，不是从0开始
-
+static char* syscall_names[] = {
+  [SYS_fork]    "fork",
+  [SYS_exit]    "exit",
+  [SYS_wait]    "wait",
+  [SYS_pipe]    "pipe",
+  [SYS_read]    "read",
+  [SYS_kill]    "kill",
+  [SYS_exec]    "exec",
+  [SYS_fstat]   "fstat",
+  [SYS_chdir]   "chdir",
+  [SYS_dup]     "dup",
+  [SYS_getpid]  "getpid",
+  [SYS_sbrk]    "sbrk",
+  [SYS_sleep]   "sleep",
+  [SYS_uptime]  "uptime",
+  [SYS_open]    "open",
+  [SYS_write]   "write",
+  [SYS_mknod]   "mknod",
+  [SYS_unlink]  "unlink",
+  [SYS_link]    "link",
+  [SYS_mkdir]   "mkdir",
+  [SYS_close]   "close",
+  [SYS_cps]     "sys_cps",
+  [SYS_trace]   "trace",
+};
 void syscall(void)//在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {
   int num;
   struct proc *p = myproc();
-
+  char* syscall_name; 
   num = p->trapframe->a7;//从当前进程的trampoline页中的a7中得到系统调用号
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->trapframe->a0 = syscalls[num]();//执行相应的系统调用函数并将返回值会存储在p->trapframe->a0中
+    if ((p->trace_mask & (1 << num)) != 0) {                                   // NEW
+        syscall_name = syscall_names[num];                                     // NEW
+        printf("%d: syscall %s -> %d", p->pid, syscall_name, p->trapframe->a0); // NEW
+    }
   } else {
     printf("%d %s: unknown sys call %d\n",
             p->pid, p->name, num);

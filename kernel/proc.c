@@ -91,7 +91,7 @@ allocpid() {
 static struct proc* allocproc(void)
 {
   struct proc *p;
-
+  
   for(p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if(p->state == UNUSED) {
@@ -105,6 +105,7 @@ static struct proc* allocproc(void)
 found:
   p->pid = allocpid();
   p->priority = 10; //设定优先级为10
+  p->trace_mask = 0;//设定掩码为0
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     release(&p->lock);
@@ -253,8 +254,7 @@ growproc(int n)
 
 // Create a new process, copying the parent.
 // Sets up child kernel stack to return as if from fork() system call.
-int
-fork(void)
+int fork(void)
 {
   int i, pid;
   struct proc *np;
@@ -292,7 +292,7 @@ fork(void)
   pid = np->pid;
 
   np->state = RUNNABLE;
-
+  np->trace_mask=p->trace_mask;//从父进程复制trace mask到子进程
   release(&np->lock);
 
   return pid;

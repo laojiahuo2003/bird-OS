@@ -99,3 +99,11 @@ uint64 sys_cps(void)
 {
   return cps();
 }
+uint64 sys_trace(void) {//为当前进程的trace_mask赋值
+  int n;
+  if(argint(0, &n) < 0) {//n赋值为p->trapframe->a0，a0来自于进程用户空间，用与传参
+    return -1;
+  }
+  myproc()->trace_mask = n;//trace_mask保存了a0的信息，用于调试
+  return 0;
+}

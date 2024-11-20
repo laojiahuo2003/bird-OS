@@ -104,4 +104,5 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   int priority;//(0-20)进程优先级
+  int trace_mask;
 };

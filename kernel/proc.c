@@ -710,3 +710,13 @@ int cps(void)
   // release(&ptable.lock); //释放锁
   return 22; //返回22
 }
+void procnum(uint64 *dst) //获取进程数
+{
+  *dst = 0;
+  struct proc *p;
+  for (p = proc; p < &proc[NPROC]; p++) {
+    if (p->state != UNUSED)
+      (*dst)++;
+  }
+}
+

@@ -58,11 +58,13 @@ void            itrunc(struct inode*);
 void            ramdiskinit(void);
 void            ramdiskintr(void);
 void            ramdiskrw(struct buf*);
+void            adjustref(uint64 pa, int num);
 
 // kalloc.c
 void*           kalloc(void);
 void            kfree(void *);
 void            kinit(void);
+void            freebytes(uint64 *dst);
 
 // log.c
 void            initlog(int, struct superblock*);
@@ -105,7 +107,7 @@ int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 int             cps(void);
-
+void            procnum(uint64 *dst);
 
 
 // swtch.S
@@ -142,6 +144,7 @@ int             fetchstr(uint64, char*, int);
 int             fetchaddr(uint64, uint64*);
 void            syscall();
 
+
 // trap.c
 extern uint     ticks;
 void            trapinit(void);
@@ -174,7 +177,7 @@ uint64          walkaddr(pagetable_t, uint64);
 int             copyout(pagetable_t, uint64, char *, uint64);
 int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
-
+int             cowalloc(pagetable_t, uint64); 
 // plic.c
 void            plicinit(void);
 void            plicinithart(void);

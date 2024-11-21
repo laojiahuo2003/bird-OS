@@ -58,6 +58,7 @@ void            itrunc(struct inode*);
 void            ramdiskinit(void);
 void            ramdiskintr(void);
 void            ramdiskrw(struct buf*);
+void            adjustref(uint64 pa, int num);
 
 // kalloc.c
 void*           kalloc(void);
@@ -176,7 +177,7 @@ uint64          walkaddr(pagetable_t, uint64);
 int             copyout(pagetable_t, uint64, char *, uint64);
 int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
-
+int             cowalloc(pagetable_t, uint64); 
 // plic.c
 void            plicinit(void);
 void            plicinithart(void);

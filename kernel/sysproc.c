@@ -1,12 +1,12 @@
 #include "types.h"
 #include "riscv.h"
-#include "defs.h"
+#include "defs.h"//存放函数声明
 #include "date.h"
 #include "param.h"
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
-
+#include "sysinfo.h"
 uint64
 sys_exit(void)
 {
@@ -99,11 +99,28 @@ uint64 sys_cps(void)
 {
   return cps();
 }
+
 uint64 sys_trace(void) {//为当前进程的trace_mask赋值
   int n;
   if(argint(0, &n) < 0) {//n赋值为p->trapframe->a0，a0来自于进程用户空间，用与传参
     return -1;
   }
   myproc()->trace_mask =n;//trace_mask保存了a0的信息，用于调试
+  return 0;
+}
+uint64 sys_sysinfo(void)
+{
+  struct sysinfo info;
+  freebytes(&info.freemem);
+  procnum(&info.nproc);
+
+  // 获取虚拟地址
+  uint64 dstaddr;
+  argaddr(0, &dstaddr);
+
+  // 从内核空间拷贝数据到用户空间
+  if (copyout(myproc()->pagetable, dstaddr, (char *)&info, sizeof info) < 0)
+    return -1;
+
   return 0;
 }

@@ -152,6 +152,8 @@ UPROGS=\
 	$U/_sleep\
 	$U/_zrzps\
 	$U/_trace\
+	$U/_sysinfotest\
+	$U/_cowtest\
 
 ifeq ($(LAB),syscall)
 UPROGS += \

@@ -696,7 +696,6 @@ int cps(void)
 {
   struct proc *p=proc; //定义一个结构体(进程控制块)
   // stati();	// 中断
-  acquire(&proc->lock); //加锁
   printf("name \t pid \t state \t \t priority \n"); //罗列所有的pid
   for(p = proc; p < &proc[NPROC]; p++)  //NPROC为64
   {
@@ -707,7 +706,6 @@ int cps(void)
     else if(p->state == RUNNABLE) //可运行队列
     printf("%s \t %d \t RUNNABLE \t %d\n", p->name, p->pid, p->priority);
   }
-  release(&proc->lock); //释放锁
   return 22; //返回22
 }
 void procnum(uint64 *dst) //获取进程数

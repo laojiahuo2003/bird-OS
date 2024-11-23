@@ -33,8 +33,7 @@ trapinithart(void)
 // handle an interrupt, exception, or system call from user space.
 // called from trampoline.S
 //
-void
-usertrap(void)
+void usertrap(void)
 {
   int which_dev = 0;
 
@@ -49,8 +48,8 @@ usertrap(void)
   
   // save user program counter.
   p->trapframe->epc = r_sepc();
-  
-  if(r_scause() == 8){
+  uint64 cause = r_scause();
+  if(cause == 8){
     // system call
 
     if(p->killed)
@@ -65,15 +64,17 @@ usertrap(void)
     intr_on();
 
     syscall();
-  }else if(r_scause()==15){
-    // 试图在一个COW只读页面上进行写操作, 为该进程额外分配复制一页
-    if(cowalloc(p->pagetable, r_stval()) < 0) {
-      p->killed = 1;
-    }
   }else if((which_dev = devintr()) != 0){
     // ok
-  } else {
-    printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
+  }else if(cause == 13 || cause == 15){
+    uint64 fault_va = r_stval();  // 获取出错的虚拟地址
+    if(fault_va >= p->sz
+    || cowpage(p->pagetable, fault_va) != 0
+    || cowalloc(p->pagetable, PGROUNDDOWN(fault_va)) == 0)
+      p->killed = 1;
+  }
+  else {
+    printf("usertrap(): unexpected scause %p pid=%d\n", cause, p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
   }

@@ -25,17 +25,20 @@ struct run {
 struct {
   struct spinlock lock;
   struct run *freelist;
-} kmem;
+} kmem[NCPU];// 每个CPU对应一个kmem
 
 void kinit()
 {
-  initlock(&kmem.lock, "kmem");// 初始化锁
+  char lockname[7]="kmem_";  // 为每个CPU分配的kmem锁分配一个name
   initlock(&ref.lock, "ref");
+  for(int i=0;i<NCPU;i++){
+    lockname[5]='0'+i; lockname[6]='\0';
+    initlock(&kmem[i].lock, lockname);// 初始化锁
+  }
   //end()表示是内核区域后第一个可用的地址，(void*)PHYSTOP表示的是物理地址的结束地址
   freerange(end, (void*)PHYSTOP);
-  /*  将第一个可用的内存到最后一个可用的内存分成一页一页的
-    * 并将这些页添加到空闲页链表中
-  */
+  //  将第一个可用的内存到最后一个可用的内存分成一页一页的
+  // 并将这些页添加到空闲页链表中
 }
 
 void freerange(void *pa_start, void *pa_end)
@@ -68,10 +71,14 @@ void kfree(void *pa)
     r = (struct run*)pa;
     // Fill with junk to catch dangling refs.
     memset(pa, 1, PGSIZE);
-    acquire(&kmem.lock);
-    r->next = kmem.freelist;
-    kmem.freelist = r;
-    release(&kmem.lock);
+    //使用cpuid()和它返回的结果时必须关中断
+    push_off();
+    int id=cpuid();
+    acquire(&kmem[id].lock);
+    r->next = kmem[id].freelist;
+    kmem[id].freelist = r;
+    release(&kmem[id].lock);
+    pop_off();
   }else{
     release(&ref.lock);
   }
@@ -84,18 +91,35 @@ void kfree(void *pa)
 void * kalloc(void)
 {
   struct run *r;
-
-  acquire(&kmem.lock);
-  r = kmem.freelist;
-  if(r){
-    kmem.freelist = r->next;
+  push_off();
+  int id=cpuid();
+  acquire(&kmem[id].lock);
+  r = kmem[id].freelist;
+  if(r){// 当前CPU的空闲列表有空闲内存就分配
+    kmem[id].freelist = r->next;
     acquire(&ref.lock);
     ref.cnt[(uint64)r / PGSIZE] = 1;  // 将引用计数初始化为1
     release(&ref.lock);
+  }else{// 当前CPU的空闲列表没有可分配内存时窃取其他内存的
+      int antid;
+      // 遍历所有CPU的空闲列表
+      for(antid=0;antid<NCPU;antid++){
+        if(antid==id) continue;
+        acquire(&kmem[antid].lock);
+        r=kmem[antid].freelist;
+        if(r){
+          kmem[antid].freelist=r->next;
+          acquire(&ref.lock);
+          ref.cnt[(uint64)r / PGSIZE] = 1;
+          release(&ref.lock);
+          release(&kmem[antid].lock);
+          break;
+        }
+        release(&kmem[antid].lock);
+      }
   }
-    
-  release(&kmem.lock);
-
+  release(&kmem[id].lock);
+  pop_off();
   if(r) 
     memset((char *)r, 5, PGSIZE); // fill with junk
   return (void*)r;
@@ -104,14 +128,16 @@ void * kalloc(void)
 void freebytes(uint64 *dst)//获取空闲内存量
 {
   *dst = 0;
-  struct run *p = kmem.freelist; // 用于遍历
-
-  acquire(&kmem.lock);
+  push_off();
+  int id=cpuid();
+  struct run *p = kmem[id].freelist; // 用于遍历
+  acquire(&kmem[id].lock);
   while (p) {
     *dst += PGSIZE;
     p = p->next;
   }
-  release(&kmem.lock);
+  release(&kmem[id].lock);
+  pop_off();
 }
 
 /**

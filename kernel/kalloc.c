@@ -128,16 +128,15 @@ void * kalloc(void)
 void freebytes(uint64 *dst)//获取空闲内存量
 {
   *dst = 0;
-  push_off();
-  int id=cpuid();
-  struct run *p = kmem[id].freelist; // 用于遍历
-  acquire(&kmem[id].lock);
-  while (p) {
-    *dst += PGSIZE;
-    p = p->next;
+  for(int i=0;i<8;i++){
+    struct run *p = kmem[i].freelist; // 用于遍历
+    acquire(&kmem[i].lock);
+    while (p) {
+      *dst += PGSIZE;
+      p = p->next;
+    }
+    release(&kmem[i].lock);
   }
-  release(&kmem[id].lock);
-  pop_off();
 }
 
 /**

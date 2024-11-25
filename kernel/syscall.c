@@ -64,12 +64,30 @@ argint(int n, int *ip)
 // Retrieve an argument as a pointer.
 // Doesn't check for legality, since
 // copyin/copyout will do that.
-int
-argaddr(int n, uint64 *ip)
+int argaddr(int n, uint64 *ip)
 {
   *ip = argraw(n);
+  struct proc* p = myproc();
+
+  // 处理向系统调用传入lazy allocation地址的情况
+  if(walkaddr(p->pagetable, *ip) == 0) {
+    if(PGROUNDUP(p->trapframe->sp) - 1 < *ip && *ip < p->sz) {
+      char* pa = kalloc();
+      if(pa == 0)
+        return -1;
+      memset(pa, 0, PGSIZE);
+
+      if(mappages(p->pagetable, PGROUNDDOWN(*ip), PGSIZE, (uint64)pa, PTE_R | PTE_W | PTE_X | PTE_U) != 0) {
+        kfree(pa);
+        return -1;
+      }
+    } else {
+      return -1;
+    }
+  }
   return 0;
 }
+
 
 // Fetch the nth word-sized system call argument as a null-terminated string.
 // Copies into buf, at most max.
@@ -168,9 +186,9 @@ void syscall(void)//在usys.s中系统调用的参数放在a0与a1中，系统�
   num = p->trapframe->a7;//从当前进程的trampoline页中的a7中得到系统调用号
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     p->trapframe->a0 = syscalls[num]();//执行相应的系统调用函数并将返回值会存储在p->trapframe->a0中
-    if ((p->trace_mask & (1 << num)) != 0) {                                   // NEW
-        syscall_name = syscall_names[num];                                     // NEW
-        printf("%d: syscall %s -> %d", p->pid, syscall_name, p->trapframe->a0); // NEW
+    if ((p->trace_mask & (1 << num)) != 0) {                                   
+        syscall_name = syscall_names[num];                                     
+        printf("%d: syscall %s -> %d\n", p->pid, syscall_name, p->trapframe->a0); 
     }
   } else {
     printf("%d %s: unknown sys call %d\n",

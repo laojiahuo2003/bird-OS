@@ -154,6 +154,7 @@ UPROGS=\
 	$U/_trace\
 	$U/_sysinfotest\
 	$U/_cowtest\
+	$U/_lazytest\
 
 ifeq ($(LAB),syscall)
 UPROGS += \

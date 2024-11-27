@@ -7,6 +7,21 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "sysinfo.h"
+
+uint64 sys_setPriority(void)
+{
+  int pid, priority;
+
+  // 从用户栈中读取 pid 和 priority 参数
+  if (argint(0, &pid) < 0 || argint(1, &priority) < 0)
+  {
+    return -1; // 参数读取失败，返回错误
+  }
+
+  // 调用 setPriority 函数设置进程优先级
+  return setPriority(pid, priority);
+}
+
 uint64
 sys_exit(void)
 {

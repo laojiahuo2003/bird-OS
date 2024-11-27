@@ -23,4 +23,5 @@
 #define SYS_cps 22
 #define SYS_trace 23
 #define SYS_sysinfo 24
-#define SYS_execve 25
+#define SYS_setPriority 25
+#define SYS_execve 26

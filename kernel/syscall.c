@@ -128,6 +128,7 @@ extern uint64 sys_uptime(void);
 extern uint64 sys_cps(void);
 extern uint64 sys_trace(void);
 extern uint64 sys_sysinfo(void);
+extern uint64 sys_setPriority(void);
 extern uint64 sys_execve(void);
 
 static uint64 (*syscalls[])(void) = {
@@ -155,6 +156,7 @@ static uint64 (*syscalls[])(void) = {
     [SYS_cps] sys_cps,
     [SYS_trace] sys_trace,
     [SYS_sysinfo] sys_sysinfo,
+    [SYS_setPriority] sys_setPriority,
     [SYS_execve] sys_execve,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
@@ -182,6 +184,7 @@ static char *syscall_names[] = {
     [SYS_cps] "sys_cps",
     [SYS_trace] "trace",
     [SYS_sysinfo] "sys_sysinfo",
+    [SYS_setPriority] "setPriority",
     [SYS_execve] "sys_execve"};
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {
@@ -193,9 +196,9 @@ void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统
   {
     p->trapframe->a0 = syscalls[num](); // 执行相应的系统调用函数并将返回值会存储在p->trapframe->a0中
     if ((p->trace_mask & (1 << num)) != 0)
-    {
-      syscall_name = syscall_names[num];
-      printf("%d: syscall %s -> %d\n", p->pid, syscall_name, p->trapframe->a0);
+    {                                                                         
+      syscall_name = syscall_names[num];                                      
+      printf("%d: syscall %s -> %d", p->pid, syscall_name, p->trapframe->a0); 
     }
   }
   else

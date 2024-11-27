@@ -863,15 +863,15 @@ int cps(void)
 {
   struct proc *p = proc; // 定义一个结构体(进程控制块)
   // stati();	// 中断
-  printf("name \t pid \t state \t \t priority \n"); // 罗列所有的pid
-  for (p = proc; p < &proc[NPROC]; p++)             // NPROC为64
+  printf("name \t pid \t state \t \t priority \tdyn_priority\n"); // 罗列所有的pid
+  for (p = proc; p < &proc[NPROC]; p++)                           // NPROC为64
   {
     if (p->state == SLEEPING) // 睡眠
-      printf("%s \t %d \t SLEEPING \t %d\n", p->name, p->pid, p->priority);
+      printf("%s \t %d \t SLEEPING \t %d\t \t%d\n", p->name, p->pid, p->priority, p->dyn_priority);
     else if (p->state == RUNNING) // 正在执行
-      printf("%s \t %d \t RUNNING \t %d\n", p->name, p->pid, p->priority);
+      printf("%s \t %d \t RUNNING \t %d\t \t%d\n", p->name, p->pid, p->priority, p->dyn_priority);
     else if (p->state == RUNNABLE) // 可运行队列
-      printf("%s \t %d \t RUNNABLE \t %d\n", p->name, p->pid, p->priority);
+      printf("%s \t %d \t RUNNABLE \t %d\t \t%d\n", p->name, p->pid, p->priority, p->dyn_priority);
   }
   return 22; // 返回22
 }

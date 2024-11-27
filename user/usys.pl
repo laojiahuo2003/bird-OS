@@ -39,3 +39,4 @@ entry("uptime");
 entry("cps");
 entry("trace");
 entry("sysinfo");
+entry("execve");

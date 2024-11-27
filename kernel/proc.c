@@ -127,7 +127,10 @@ static struct proc *allocproc(void)
 
 found:
   p->pid = allocpid();
-  p->priority = 10;  // 设定优先级为10
+  p->priority = 10; // 设定优先级为10
+  p->cpu_time = 0;
+  p->wait_time = 0;
+  p->dyn_priority = 10;
   p->trace_mask = 0; // 设定掩码为0
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0)
@@ -526,7 +529,7 @@ void scheduler2(void)
     }
   }
 }
-void scheduler(void)
+void scheduler1(void)
 {
   struct proc *p;
   struct proc *pmax = 0; // 优先级最高的进程
@@ -567,6 +570,68 @@ void scheduler(void)
     {
       // 找到优先级最高的进程，调度它
       pmax->state = RUNNING;
+      c->proc = pmax;
+
+      swtch(&c->context, &pmax->context);
+
+      // 进程运行结束后，释放锁
+      c->proc = 0;
+      release(&pmax->lock);
+    }
+    else
+    {
+      // 没有可运行的进程，进入低功耗模式
+      intr_on();
+      asm volatile("wfi");
+    }
+  }
+}
+void scheduler(void)
+{
+  struct proc *p;
+  struct proc *pmax = 0; // 优先级最高的进程
+  int priority_max;      // 记录最大优先级
+  struct cpu *c = mycpu();
+
+  c->proc = 0;
+
+  for (;;)
+  {
+    // 避免死锁，确保设备中断
+    intr_on();
+
+    pmax = 0;
+    priority_max = -1;
+
+    // 查找优先级最高的进程并持有其锁
+    for (p = proc; p < &proc[NPROC]; p++)
+    {
+      acquire(&p->lock);
+      if (p->state == RUNNABLE && p->dyn_priority > priority_max)
+      {
+        // 如果找到更高优先级的进程，则释放上一个高优先级进程的锁
+        if (pmax != 0)
+        {
+          release(&pmax->lock);
+        }
+        pmax = p; // 更新优先级最高的进程
+        priority_max = p->dyn_priority;
+      }
+      else
+      {
+        release(&p->lock); // 非 RUNNABLE 或优先级不够，直接释放锁
+      }
+    }
+
+    if (pmax != 0)
+    {
+      // 找到优先级最高的进程，调度它
+      pmax->state = RUNNING;
+      pmax->wait_time = 0;
+      if (myproc() != pmax)
+      {
+        pmax->cpu_time = 0;
+      }
       c->proc = pmax;
 
       swtch(&c->context, &pmax->context);

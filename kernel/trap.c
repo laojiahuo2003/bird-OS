@@ -67,15 +67,26 @@ void usertrap(void)
   else if ((which_dev = devintr()) != 0)
   {
     // ok
-  }
-  else if (cause == 13 || cause == 15)
-  {
-    uint64 fault_va = r_stval(); // 获取出错的虚拟地址
-    if (fault_va >= p->sz || cowpage(p->pagetable, fault_va) != 0 || cowalloc(p->pagetable, PGROUNDDOWN(fault_va)) == 0)
-      p->killed = 1;
-  }
-  else
-  {
+  }else if(cause == 13 || cause == 15){
+    uint64 fault_va = r_stval();  // 获取出错的虚拟地址
+    if(cowpage(p->pagetable, fault_va)==0){ // 如果是cow页出错
+      if(fault_va >= p->sz|| cowalloc(p->pagetable, PGROUNDDOWN(fault_va)) == 0)
+          p->killed = 1;
+    }else{  //  缺页异常(可能是懒分配引起的)
+      // printf("lazy!");
+      char* pa; // 分配的物理地址
+      if(PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz &&(pa = kalloc()) != 0) {
+        memset(pa, 0, PGSIZE);
+        if(mappages(p->pagetable, PGROUNDDOWN(fault_va), PGSIZE, (uint64)pa, PTE_R | PTE_W | PTE_X | PTE_U) != 0) {
+          kfree(pa);
+          p->killed = 1;
+        }
+      }else{
+        printf("usertrap(): out of memory!\n");//已经没有可分配的空闲页面
+        p->killed = 1;
+      }
+    }
+  }else{
     printf("usertrap(): unexpected scause %p pid=%d\n", cause, p->pid);
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;

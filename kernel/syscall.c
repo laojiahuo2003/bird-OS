@@ -67,6 +67,29 @@ int argint(int n, int *ip)
 int argaddr(int n, uint64 *ip)
 {
   *ip = argraw(n);
+  struct proc *p = myproc();
+
+  // 处理向系统调用传入lazy allocation地址的情况
+  if (walkaddr(p->pagetable, *ip) == 0)
+  {
+    if (PGROUNDUP(p->trapframe->sp) - 1 < *ip && *ip < p->sz)
+    {
+      char *pa = kalloc();
+      if (pa == 0)
+        return -1;
+      memset(pa, 0, PGSIZE);
+
+      if (mappages(p->pagetable, PGROUNDDOWN(*ip), PGSIZE, (uint64)pa, PTE_R | PTE_W | PTE_X | PTE_U) != 0)
+      {
+        kfree(pa);
+        return -1;
+      }
+    }
+    else
+    {
+      return -1;
+    }
+  }
   return 0;
 }
 
@@ -106,6 +129,7 @@ extern uint64 sys_cps(void);
 extern uint64 sys_trace(void);
 extern uint64 sys_sysinfo(void);
 extern uint64 sys_setPriority(void);
+extern uint64 sys_execve(void);
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -133,6 +157,7 @@ static uint64 (*syscalls[])(void) = {
     [SYS_trace] sys_trace,
     [SYS_sysinfo] sys_sysinfo,
     [SYS_setPriority] sys_setPriority,
+    [SYS_execve] sys_execve,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -160,7 +185,7 @@ static char *syscall_names[] = {
     [SYS_trace] "trace",
     [SYS_sysinfo] "sys_sysinfo",
     [SYS_setPriority] "setPriority",
-};
+    [SYS_execve] "sys_execve"};
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {
   int num;
@@ -171,9 +196,9 @@ void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统
   {
     p->trapframe->a0 = syscalls[num](); // 执行相应的系统调用函数并将返回值会存储在p->trapframe->a0中
     if ((p->trace_mask & (1 << num)) != 0)
-    {                                                                         // NEW
-      syscall_name = syscall_names[num];                                      // NEW
-      printf("%d: syscall %s -> %d", p->pid, syscall_name, p->trapframe->a0); // NEW
+    {                                                                         
+      syscall_name = syscall_names[num];                                      
+      printf("%d: syscall %s -> %d", p->pid, syscall_name, p->trapframe->a0); 
     }
   }
   else

@@ -61,9 +61,25 @@ sys_sbrk(void)
 
   if (argint(0, &n) < 0)
     return -1;
-  addr = myproc()->sz;
-  if (growproc(n) < 0)
+
+  struct proc *p = myproc();
+  addr = p->sz;
+  uint64 sz = p->sz;
+
+  if (n > 0)
+  {
+    // 懒分配
+    p->sz += n;
+  }
+  else if (sz + n > 0)
+  {
+    sz = uvmdealloc(p->pagetable, sz, sz + n);
+    p->sz = sz;
+  }
+  else
+  {
     return -1;
+  }
   return addr;
 }
 
@@ -142,4 +158,58 @@ uint64 sys_sysinfo(void)
     return -1;
 
   return 0;
+}
+uint64
+sys_execve(void)
+{
+  char path[260], *argv[MAXARG];
+  int i;
+  uint64 uargv, uarg;
+  // 获取路径和参数地址
+  if (argstr(0, path, 260) < 0 || argaddr(1, &uargv) < 0)
+  {
+    return -1;
+  }
+  memset(argv, 0, sizeof(argv));
+  // 设置 argv[0] 为程序的路径
+  argv[0] = path;
+  // 从用户空间获取其他参数
+  for (i = 1;; i++)
+  {
+    if (i >= NELEM(argv))
+      goto bad;
+    // 获取每个参数的地址
+    if (fetchaddr(uargv + sizeof(uint64) * (i - 1), (uint64 *)&uarg) < 0)
+      goto bad;
+    // 如果参数为空，结束循环
+    if (uarg == 0)
+    {
+      argv[i] = 0;
+      break;
+    }
+    // 为参数分配内存
+    argv[i] = kalloc();
+    if (argv[i] == 0)
+      goto bad;
+    // 获取字符串内容
+    if (fetchstr(uarg, argv[i], PGSIZE) < 0)
+      goto bad;
+  }
+  // 打印参数（调试用）
+  // for (i = 0; i < NELEM(argv) && argv[i] != 0; i++)
+  // {
+  //   printf("argv[%d]: %s\n", i, argv[i]);
+  // }
+  // 调用 exec 执行程序
+  // printf("%s", path);
+  int ret = exec(path, argv);
+  // 清理已分配的内存
+  for (i = 1; i < NELEM(argv) && argv[i] != 0; i++)
+    kfree(argv[i]);
+  return ret;
+bad:
+  // 清理已分配的内存
+  for (i = 0; i < NELEM(argv) && argv[i] != 0; i++)
+    kfree(argv[i]);
+  return -1;
 }

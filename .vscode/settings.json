@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "types.h": "c",
-        "user.h": "c"
+        "user.h": "c",
+        "defs.h": "c",
+        "sysinfo.h": "c",
+        "proc.h": "c"
     }
 }

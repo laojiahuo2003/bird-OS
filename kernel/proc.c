@@ -110,7 +110,6 @@ int allocpid()
 static struct proc *allocproc(void)
 {
   struct proc *p;
-
   for (p = proc; p < &proc[NPROC]; p++)
   {
     acquire(&p->lock);
@@ -126,6 +125,7 @@ static struct proc *allocproc(void)
   return 0;
 
 found:
+
   p->pid = allocpid();
   p->priority = 10; // 设定优先级为10
   p->cpu_time = 0;
@@ -135,6 +135,7 @@ found:
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0)
   {
+
     release(&p->lock);
     return 0;
   }
@@ -143,8 +144,10 @@ found:
   p->pagetable = proc_pagetable(p);
   if (p->pagetable == 0)
   {
+    printf("fuck3\n");
     freeproc(p);
     release(&p->lock);
+
     return 0;
   }
 
@@ -293,6 +296,7 @@ int fork(void)
   // Allocate process.
   if ((np = allocproc()) == 0)
   {
+    printf("fuck1\n");
     return -1;
   }
 
@@ -301,6 +305,7 @@ int fork(void)
   {
     freeproc(np);
     release(&np->lock);
+
     return -1;
   }
   np->sz = p->sz;
@@ -646,7 +651,7 @@ void scheduler(void)
       intr_on();
       asm volatile("wfi");
     }
-  }
+    }
 }
 
 // Switch to scheduler.  Must hold only p->lock

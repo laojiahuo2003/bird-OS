@@ -41,3 +41,5 @@ entry("trace");
 entry("sysinfo");
 entry("setPriority");
 entry("execve");
+entry("getparentpid");
+entry("print_pgtable");

@@ -296,7 +296,6 @@ int fork(void)
   // Allocate process.
   if ((np = allocproc()) == 0)
   {
-    printf("fuck1\n");
     return -1;
   }
 
@@ -597,17 +596,13 @@ void scheduler(void)
   struct proc *pmax = 0; // 优先级最高的进程
   int priority_max;      // 记录最大优先级
   struct cpu *c = mycpu();
-
   c->proc = 0;
-
   for (;;)
   {
     // 避免死锁，确保设备中断
     intr_on();
-
     pmax = 0;
     priority_max = -1;
-
     // 查找优先级最高的进程并持有其锁
     for (p = proc; p < &proc[NPROC]; p++)
     {
@@ -651,7 +646,7 @@ void scheduler(void)
       intr_on();
       asm volatile("wfi");
     }
-    }
+  }
 }
 
 // Switch to scheduler.  Must hold only p->lock

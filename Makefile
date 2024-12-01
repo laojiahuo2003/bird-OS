@@ -150,40 +150,42 @@ UPROGS=\
 	$U/_wc\
 	$U/_zombie\
 	$U/_sleep\
-	$U/_zrzps\
+	$U/_currentproc\
 	$U/_trace\
 	$U/_sysinfotest\
 	$U/_cowtest\
 	$U/_setp\
 	$U/_lazytest\
 	$U/_execve\
+	$U/_getparentpid\
+	$U/_print_pgtable\
 
-ifeq ($(LAB),syscall)
-UPROGS += \
-	$U/_trace\
-	$U/_sysinfotest
-endif
+# ifeq ($(LAB),syscall)
+# UPROGS += \
+# 	$U/_trace\
+# 	$U/_sysinfotest
+# endif
 
-ifeq ($(LAB),trap)
-UPROGS += \
-	$U/_call\
-	$U/_alarmtest
-endif
+# ifeq ($(LAB),trap)
+# UPROGS += \
+# 	$U/_call\
+# 	$U/_alarmtest
+# endif
 
-ifeq ($(LAB),lazy)
-UPROGS += \
-	$U/_lazytests
-endif
+# ifeq ($(LAB),lazy)
+# UPROGS += \
+# 	$U/_lazytests
+# endif
 
-ifeq ($(LAB),cow)
-UPROGS += \
-	$U/_cowtest
-endif
+# ifeq ($(LAB),cow)
+# UPROGS += \
+# 	$U/_cowtest
+# endif
 
-UEXTRA=
-ifeq ($(LAB),util)
-	UEXTRA += user/xargstest.sh
-endif
+# UEXTRA=
+# ifeq ($(LAB),util)
+# 	UEXTRA += user/xargstest.sh
+# endif
 
 fs.img: mkfs/mkfs README $(UEXTRA) $(UPROGS)
 	mkfs/mkfs fs.img README $(UEXTRA) $(UPROGS)

@@ -28,7 +28,8 @@ int trace(int);
 int sysinfo(struct sysinfo *);
 int setPriority(int pid, int priority);
 int execve(const char *path, char *argv[], char *envp[]);
-
+int getparentpid(void);
+int print_pgtable(void);
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);

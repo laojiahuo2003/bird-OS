@@ -1,6 +1,6 @@
-#include "kernel/param.h"
-#include "kernel/types.h"
-#include "kernel/stat.h"
+#include "param.h"
+#include "types.h"
+#include "stat.h"
 #include "user/user.h"
 
 int main(void)

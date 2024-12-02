@@ -1,12 +1,13 @@
-#include "kernel/param.h"
-#include "kernel/types.h"
-#include "kernel/stat.h"
+#include "param.h"
+#include "types.h"
+#include "stat.h"
 #include "user/user.h"
-#include "kernel/fs.h"
-#include "kernel/fcntl.h"
-#include "kernel/syscall.h"
-#include "kernel/memlayout.h"
-#include "kernel/riscv.h"
+#include "fs.h"
+#include "fcntl.h"
+#include "syscall.h"
+#include "memlayout.h"
+#include "riscv.h"
+#include "sysinfo.h"
 
 //
 // Tests xv6 system calls.  usertests without arguments runs them all
@@ -1085,8 +1086,15 @@ void forkforkfork(char *s)
 // it acquired.
 void reparent2(char *s)
 {
+  struct sysinfo info;
+  sysinfo(&info);
+  printf("freemem:%db\t", info.freemem);
+  printf("nproc:%d\n", info.nproc);
   for (int i = 0; i < 800; i++)
   {
+    sysinfo(&info);
+    printf("freemem:%db\t", info.freemem);
+    printf("nproc:%d\n", info.nproc);
     // printf("%d\n", i);
     int pid1 = fork();
     // printf("%d\n", pid1);

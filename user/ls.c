@@ -1,7 +1,7 @@
-#include "kernel/types.h"
-#include "kernel/stat.h"
+#include "types.h"
+#include "stat.h"
 #include "user/user.h"
-#include "kernel/fs.h"
+#include "fs.h"
 
 char *
 fmtname(char *path)

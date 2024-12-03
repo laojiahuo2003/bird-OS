@@ -155,6 +155,7 @@ UPROGS=\
 	$U/_execve\
 	$U/_getparentpid\
 	$U/_print_pgtable\
+	$U/_mmaptest\
 
 
 

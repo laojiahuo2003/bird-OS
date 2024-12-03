@@ -27,3 +27,5 @@
 #define SYS_execve 26
 #define SYS_getparentpid 27  // 获取当前进程的父进程的pid
 #define SYS_print_pgtable 28 // 打印当前进程的页表
+#define SYS_mmap 29          // 建立内存文件映射
+#define SYS_munmap 30        // 取消内存文件映射

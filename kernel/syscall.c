@@ -132,6 +132,8 @@ extern uint64 sys_setPriority(void);
 extern uint64 sys_execve(void);
 extern uint64 sys_getparentpid(void);
 extern uint64 sys_print_pgtable(void);
+extern uint64 sys_mmap(void);
+extern uint64 sys_munmap(void);
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -162,6 +164,8 @@ static uint64 (*syscalls[])(void) = {
     [SYS_execve] sys_execve,
     [SYS_getparentpid] sys_getparentpid,
     [SYS_print_pgtable] sys_print_pgtable,
+    [SYS_mmap] sys_mmap,
+    [SYS_munmap] sys_munmap,
 
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
@@ -193,6 +197,8 @@ static char *syscall_names[] = {
     [SYS_execve] "sys_execve",
     [SYS_getparentpid] "sys_getparentpid",
     [SYS_print_pgtable] "sys_print_pgtable",
+    [SYS_mmap] "sys_mmap",
+    [SYS_munmap] "sys_munmap",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

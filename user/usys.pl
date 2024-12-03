@@ -43,3 +43,5 @@ entry("setPriority");
 entry("execve");
 entry("getparentpid");
 entry("print_pgtable");
+entry("mmap");
+entry("munmap");

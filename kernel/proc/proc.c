@@ -615,59 +615,70 @@ void scheduler1(void)
 void scheduler(void)
 {
   struct proc *p;
-  struct proc *pmax = 0; // 优先级最高的进程
-  int priority_max;      // 记录最大优先级
+  struct proc *pmax; // 优先级最高的进程
   struct cpu *c = mycpu();
+  int priority_max; // 当前最高优先级
+
   c->proc = 0;
+
   for (;;)
   {
-    // 避免死锁，确保设备中断
-    intr_on();
-    pmax = 0;
-    priority_max = -1;
-    // 查找优先级最高的进程并持有其锁
+    intr_on();         // 启用中断
+    pmax = 0;          // 重置优先级最高的进程
+    priority_max = -1; // 重置最高优先级
+
+    // 遍历进程表
     for (p = proc; p < &proc[NPROC]; p++)
     {
       acquire(&p->lock);
-      if (p->state == RUNNABLE && p->dyn_priority > priority_max)
+      if (p->state == RUNNABLE)
       {
-        // 如果找到更高优先级的进程，则释放上一个高优先级进程的锁
-        if (pmax != 0)
+        // 更新动态优先级
+        p->wait_time++; // 增加等待时间
+        p->dyn_priority = p->priority + (p->wait_time / 5) - (p->cpu_time / 5);
+
+        // 限制动态优先级范围在 [0, 20]
+        if (p->dyn_priority < 0)
+          p->dyn_priority = 0;
+        if (p->dyn_priority > 20)
+          p->dyn_priority = 20;
+
+        // 找到优先级更高的进程
+        if (p->dyn_priority > priority_max)
         {
-          release(&pmax->lock);
+          priority_max = p->dyn_priority;
+          pmax = p;
         }
-        pmax = p; // 更新优先级最高的进程
-        priority_max = p->dyn_priority;
       }
-      else
-      {
-        release(&p->lock); // 非 RUNNABLE 或优先级不够，直接释放锁
-      }
+
+      release(&p->lock);
     }
 
-    if (pmax != 0)
+    // 如果没有找到 RUNNABLE 的进程，则进入低功耗等待模式
+    if (pmax == 0)
     {
-      // 找到优先级最高的进程，调度它
-      pmax->state = RUNNING;
-      pmax->wait_time = 0;
-      if (myproc() != pmax)
-      {
-        pmax->cpu_time = 0;
-      }
-      c->proc = pmax;
-
-      swtch(&c->context, &pmax->context);
-
-      // 进程运行结束后，释放锁
-      c->proc = 0;
-      release(&pmax->lock);
-    }
-    else
-    {
-      // 没有可运行的进程，进入低功耗模式
       intr_on();
       asm volatile("wfi");
+      continue;
     }
+
+    // 调度优先级最高的进程
+    acquire(&pmax->lock);
+    if (pmax->state == RUNNING)
+    {
+      pmax->cpu_time = 0;
+    }
+    if (pmax->state == RUNNABLE) // 再次确认状态
+    {
+      pmax->state = RUNNING;              // 设置为运行状态
+      pmax->wait_time = 0;                // 清零等待时间
+      c->proc = pmax;                     // 当前 CPU 正在运行的进程
+      swtch(&c->context, &pmax->context); // 切换到目标进程
+
+      // 切换回来时，重置 CPU 的当前运行进程
+      c->proc = 0;
+    }
+    release(&pmax->lock);
   }
 }
 

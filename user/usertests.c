@@ -931,7 +931,6 @@ void exitwait(char *s)
 void reparent(char *s)
 {
   int master_pid = getpid();
-  printf("fuck\n");
   for (int i = 0; i < 200; i++)
   {
     int pid = fork();
@@ -1088,13 +1087,9 @@ void reparent2(char *s)
 {
   struct sysinfo info;
   sysinfo(&info);
-  printf("freemem:%db\t", info.freemem);
-  printf("nproc:%d\n", info.nproc);
   for (int i = 0; i < 800; i++)
   {
     sysinfo(&info);
-    printf("freemem:%db\t", info.freemem);
-    printf("nproc:%d\n", info.nproc);
     // printf("%d\n", i);
     int pid1 = fork();
     // printf("%d\n", pid1);

@@ -152,6 +152,7 @@ void trapinit(void);
 void trapinithart(void);
 extern struct spinlock tickslock;
 void usertrapret(void);
+int mmap_handler(int va, int cause);
 
 // uart.c
 void uartinit(void);
@@ -179,6 +180,8 @@ int copyout(pagetable_t, uint64, char *, uint64);
 int copyin(pagetable_t, char *, uint64, uint64);
 int copyinstr(pagetable_t, char *, uint64, uint64);
 pte_t *walk(pagetable_t, uint64, int);
+void vmprint_helper(pagetable_t, int);
+void vmprint(pagetable_t);
 // plic.c
 void plicinit(void);
 void plicinithart(void);

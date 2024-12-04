@@ -4,6 +4,15 @@
         "user.h": "c",
         "defs.h": "c",
         "sysinfo.h": "c",
-        "proc.h": "c"
+        "proc.h": "c",
+        "riscv.h": "c",
+        "memlayout.h": "c",
+        "param.h": "c",
+        "spinlock.h": "c",
+        "fs.h": "c",
+        "assert.h": "c",
+        "fcntl.h": "c",
+        "stat.h": "c",
+        "syscall.h": "c"
     }
 }

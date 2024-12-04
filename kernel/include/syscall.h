@@ -12,7 +12,7 @@
 #define SYS_getpid 11
 #define SYS_sbrk 12
 #define SYS_sleep 13
-#define SYS_uptime 14
+#define SYS_uptime 14 // 获取系统的启动时间
 #define SYS_open 15
 #define SYS_write 16
 #define SYS_mknod 17
@@ -25,3 +25,7 @@
 #define SYS_sysinfo 24
 #define SYS_setPriority 25
 #define SYS_execve 26
+#define SYS_getparentpid 27  // 获取当前进程的父进程的pid
+#define SYS_print_pgtable 28 // 打印当前进程的页表
+#define SYS_mmap 29          // 建立内存文件映射
+#define SYS_munmap 30        // 取消内存文件映射

@@ -6,10 +6,10 @@
 #include <assert.h>
 
 #define stat xv6_stat // avoid clash with host struct stat
-#include "kernel/types.h"
-#include "kernel/fs.h"
-#include "kernel/stat.h"
-#include "kernel/param.h"
+#include "kernel/include/types.h"
+#include "kernel/include/fs.h"
+#include "kernel/include/stat.h"
+#include "kernel/include/param.h"
 
 #ifndef static_assert
 #define static_assert(a, b) \
@@ -149,15 +149,16 @@ int main(int argc, char *argv[])
 	// 创建好根目录后，就将fs.img后面跟着的app 文件写入磁盘
 	for (i = 2; i < argc; i++)
 	{
-		// get rid of "user/"
+		// 去除 "user/" 和 "kernel/include/"
 		char *shortname;
 		if (strncmp(argv[i], "user/", 5) == 0)
 			shortname = argv[i] + 5;
+		else if (strncmp(argv[i], "kernel/include/", 15) == 0)
+			shortname = argv[i] + 15;
 		else
 			shortname = argv[i];
-
+		printf("%s\n", shortname);
 		assert(index(shortname, '/') == 0);
-
 		if ((fd = open(argv[i], 0)) < 0)
 		{
 			perror(argv[i]);

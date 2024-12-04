@@ -213,3 +213,16 @@ bad:
     kfree(argv[i]);
   return -1;
 }
+uint64 sys_getparentpid(void)
+{
+  struct proc *p = myproc();
+  return p->parent->pid;
+}
+uint64 sys_print_pgtable(void)
+{
+  struct proc *p = myproc();
+  acquire(&p->lock);
+  vmprint(p->pagetable);
+  release(&p->lock);
+  return 0;
+}

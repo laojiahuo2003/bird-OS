@@ -1,6 +1,6 @@
-#include "kernel/param.h"
-#include "kernel/types.h"
-#include "kernel/stat.h"
+#include "param.h"
+#include "types.h"
+#include "stat.h"
 #include "user/user.h"
 
 int main(int argc, char *argv[])
@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     // char *args[] = {"echo", "Hello", "world", 0};
 
     // 调用 execve 系统调用，执行 /bin/echo 程序
+    printf("%s\n", argv[0]);
     int ret = execve(argv[1], &argv[2], 0);
 
     // 如果 execve 调用成功，下面的代码不会被执行

@@ -29,3 +29,9 @@
 #define SYS_print_pgtable 28 // 打印当前进程的页表
 #define SYS_mmap 29          // 建立内存文件映射
 #define SYS_munmap 30        // 取消内存文件映射
+#define SYS_sh_var_read 31   // 信号量：访问共享变量
+#define SYS_sh_var_write 32  // 信号量：修改共享变量
+#define SYS_sem_create 33    // 信号量：创建信号量
+#define SYS_sem_free 34      // 信号量：释放信号量
+#define SYS_sem_p 35         // 信号量：P操作，获取资源
+#define SYS_sem_v 36         // 信号量：V操作，释放资源

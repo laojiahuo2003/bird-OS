@@ -134,6 +134,12 @@ extern uint64 sys_getparentpid(void);
 extern uint64 sys_print_pgtable(void);
 extern uint64 sys_mmap(void);
 extern uint64 sys_munmap(void);
+extern uint64 sys_sh_var_read(void);  // 信号量
+extern uint64 sys_sh_var_write(void); // 信号量
+extern uint64 sys_sem_create(void);   // 信号量
+extern uint64 sys_sem_free(void);     // 信号量
+extern uint64 sys_sem_p(void);        // 信号量
+extern uint64 sys_sem_v(void);        // 信号量
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -166,7 +172,12 @@ static uint64 (*syscalls[])(void) = {
     [SYS_print_pgtable] sys_print_pgtable,
     [SYS_mmap] sys_mmap,
     [SYS_munmap] sys_munmap,
-
+    [SYS_sh_var_read] sys_sh_var_read,   // 信号量
+    [SYS_sh_var_write] sys_sh_var_write, // 信号量
+    [SYS_sem_create] sys_sem_create,
+    [SYS_sem_free] sys_sem_free,
+    [SYS_sem_p] sys_sem_p,
+    [SYS_sem_v] sys_sem_v,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -199,6 +210,12 @@ static char *syscall_names[] = {
     [SYS_print_pgtable] "sys_print_pgtable",
     [SYS_mmap] "sys_mmap",
     [SYS_munmap] "sys_munmap",
+    [SYS_sh_var_read] "sys_sh_var_read",   // 信号量
+    [SYS_sh_var_write] "sys_sh_var_write", // 信号量
+    [SYS_sem_create] "sys_sem_create",
+    [SYS_sem_free] "sys_sem_free",
+    [SYS_sem_p] "sys_sem_p",
+    [SYS_sem_v] "sys_sem_v",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

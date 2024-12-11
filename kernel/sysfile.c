@@ -518,3 +518,35 @@ sys_pipe(void)
   }
   return 0;
 }
+
+// SYS_dup_new 系统调用实现
+uint64 
+sys_dup_new(void) 
+{
+  int old_fd, new_fd;
+  struct file *f;
+
+  // 获取传入的文件描述符
+  if (argfd(0, &old_fd, &f) < 0 ||  argint(1, &new_fd) < 0)
+    return -1;
+
+  if (old_fd == new_fd)
+   return -1;
+
+  
+  // 检查新文件描述符的有效范围
+  if (new_fd < 0 || new_fd >= NOFILE)
+    return -1;
+  
+  // 关闭new_fd原来的文件结构
+  fileclose(myproc()->ofile[new_fd]);
+  
+  // 复制文件描述符，设置新的文件描述符指向相同的文件结构
+  myproc()->ofile[new_fd] = f;
+  
+
+  // 增加文件描述符的引用计数
+  filedup(f);
+
+  return new_fd;  // 返回新的文件描述符
+}

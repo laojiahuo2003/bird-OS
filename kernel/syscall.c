@@ -130,6 +130,7 @@ extern uint64 sys_trace(void);
 extern uint64 sys_sysinfo(void);
 extern uint64 sys_setPriority(void);
 extern uint64 sys_execve(void);
+extern uint64 sys_dup_new(void);
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -158,6 +159,7 @@ static uint64 (*syscalls[])(void) = {
     [SYS_sysinfo] sys_sysinfo,
     [SYS_setPriority] sys_setPriority,
     [SYS_execve] sys_execve,
+    [SYS_dup_new] sys_dup_new,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -185,7 +187,8 @@ static char *syscall_names[] = {
     [SYS_trace] "trace",
     [SYS_sysinfo] "sys_sysinfo",
     [SYS_setPriority] "setPriority",
-    [SYS_execve] "sys_execve"};
+    [SYS_execve] "sys_execve",
+    [SYS_dup_new] "sys_dup_new"};
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {
   int num;

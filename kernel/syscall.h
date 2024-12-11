@@ -25,3 +25,4 @@
 #define SYS_sysinfo 24
 #define SYS_setPriority 25
 #define SYS_execve 26
+#define SYS_dup_new 27

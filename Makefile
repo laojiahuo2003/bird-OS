@@ -156,6 +156,8 @@ UPROGS=\
 	$U/_getparentpid\
 	$U/_print_pgtable\
 	$U/_mmaptest\
+	$U/_sh_rw_nolock\
+	$U/_sh_rw_lock\
 
 
 

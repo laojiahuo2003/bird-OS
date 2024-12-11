@@ -37,6 +37,7 @@ void main()
     iinit();              // inode cache
     fileinit();           // file table
     virtio_disk_init();   // emulated hard disk
+    initsem();            // 信号量数组初始化
     userinit();           // first user process
     __sync_synchronize(); // 防止编译器优化，确保后续的任何操作都是初始化之后进行
     started = 1;

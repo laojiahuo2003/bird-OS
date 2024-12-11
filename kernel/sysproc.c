@@ -8,6 +8,8 @@
 #include "proc.h"
 #include "sysinfo.h"
 
+int sh_var_for_sem_demo = 0; // 信号量；共享变量
+
 uint64 sys_setPriority(void)
 {
   int pid, priority;
@@ -224,5 +226,123 @@ uint64 sys_print_pgtable(void)
   acquire(&p->lock);
   vmprint(p->pagetable);
   release(&p->lock);
+  return 0;
+}
+
+// 信号量
+int sys_sh_var_read()
+{
+  return sh_var_for_sem_demo;
+}
+// 信号量
+int sys_sh_var_write()
+{
+  int n;
+  if (argint(0, &n) < 0)
+  {
+    return -1;
+  }
+  sh_var_for_sem_demo = n;
+  return sh_var_for_sem_demo;
+}
+
+// 信号量：创建信号量
+int sys_sem_create()
+{
+  int n_sem, id;
+  if (argint(0, &n_sem) < 0 || n_sem <= 0) // 参数必须合法且大于0
+  {
+    return -1;
+  }
+
+  for (id = 0; id < SEM_MAX_NUM; id++)
+  {
+    acquire(&sems[id].lock);
+    if (sems[id].allocated == 0)
+    {
+      sems[id].allocated = 1;
+      sems[id].resource_count = n_sem; // 分配资源
+      sem_used_count++;
+      printf("创建了 %d sem\n", id);
+      release(&sems[id].lock);
+      return id; // 返回信号量索引
+    }
+    release(&sems[id].lock);
+  }
+
+  return -1; // 没有可用的信号量
+}
+// 信号量：释放信号量
+int sys_sem_free()
+{
+  int id;
+  if (argint(0, &id) < 0 || id < 0 || id >= SEM_MAX_NUM) // 检查参数范围
+  {
+    return -1;
+  }
+
+  acquire(&sems[id].lock);
+  if (sems[id].allocated == 1)
+  {
+    sems[id].allocated = 0;
+    sems[id].resource_count = 0; // 清除资源计数
+    sem_used_count--;
+    printf("释放 %d sem\n", id);
+  }
+  release(&sems[id].lock);
+
+  return 0;
+}
+// 信号量：P操作，获取资源
+int sys_sem_p()
+{
+  int id;
+  struct proc *p = myproc();
+
+  if (argint(0, &id) < 0 || id < 0 || id >= SEM_MAX_NUM) // 参数合法性检查
+  {
+    return -1;
+  }
+
+  // printf("sem_p: 尝试获取信号量 id = %d\n", id);
+
+  acquire(&p->lock);       // 获取当前进程的锁
+  acquire(&sems[id].lock); // 获取信号量锁
+
+  sems[id].resource_count--;
+  if (sems[id].resource_count < 0)
+  {
+    release(&sems[id].lock);    // 释放信号量锁
+    sleep(&sems[id], &p->lock); // 使用进程锁进行休眠
+  }
+  else
+  {
+    release(&sems[id].lock); // 如果资源足够，释放信号量锁
+  }
+
+  release(&p->lock); // 释放进程锁
+  return 0;
+}
+
+// 信号量：V操作，释放资源
+int sys_sem_v()
+{
+  int id;
+  if (argint(0, &id) < 0 || id < 0 || id >= SEM_MAX_NUM) // 参数合法性检查
+  {
+    return -1;
+  }
+
+  // printf("sem_v: 尝试释放信号量 id = %d\n", id);
+
+  acquire(&sems[id].lock); // 获取信号量锁
+
+  sems[id].resource_count++;
+  if (sems[id].resource_count <= 0)
+  {
+    wakeup(&sems[id]); // 唤醒等待的进程
+  }
+
+  release(&sems[id].lock); // 释放信号量锁
   return 0;
 }

@@ -791,6 +791,22 @@ void wakeup(void *chan)
   }
 }
 
+// 只唤醒一个等待资源的进程
+void wakeupOneProc(void *chan)
+{
+  struct proc *p;
+  for (p = proc; p < &proc[NPROC]; p++)
+  {
+    acquire(&p->lock);
+    if (p->state == SLEEPING && p->chan == chan)
+    {
+      p->state = RUNNABLE;
+      break; // 多加了这一步
+    }
+    release(&p->lock);
+  }
+}
+
 // Wake up p if it is sleeping in wait(); used by exit().
 // Caller must hold p->lock.
 static void

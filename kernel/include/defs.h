@@ -105,6 +105,7 @@ void sleep(void *, struct spinlock *);
 void userinit(void);
 int wait(uint64);
 void wakeup(void *);
+void wakeupOneProc(void *chan); // 信号量机制需要
 void yield(void);
 int either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int either_copyin(void *dst, int user_src, uint64 src, uint64 len);
@@ -122,6 +123,7 @@ void initlock(struct spinlock *, char *);
 void release(struct spinlock *);
 void push_off(void);
 void pop_off(void);
+void initsem(void); // 信号量：初始化
 
 // sleeplock.c
 void acquiresleep(struct sleeplock *);

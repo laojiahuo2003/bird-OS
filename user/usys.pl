@@ -45,3 +45,9 @@ entry("getparentpid");
 entry("print_pgtable");
 entry("mmap");
 entry("munmap");
+entry("sh_var_read"); # 信号量：修改共享变量
+entry("sh_var_write");#  信号量：修改共享变量
+entry("sem_create"); # 信号量：
+entry("sem_free");#  信号量：
+entry("sem_p"); # 信号量：
+entry("sem_v");#  信号量：

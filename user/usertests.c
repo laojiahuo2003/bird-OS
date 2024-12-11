@@ -1087,7 +1087,7 @@ void reparent2(char *s)
 {
   struct sysinfo info;
   sysinfo(&info);
-  for (int i = 0; i < 800; i++)
+  for (int i = 0; i < 400; i++)
   {
     sysinfo(&info);
     // printf("%d\n", i);

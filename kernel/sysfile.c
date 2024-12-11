@@ -247,8 +247,8 @@ bad:
   return -1;
 }
 
-static struct inode *
-create(char *path, short type, short major, short minor)
+
+static struct inode *create(char *path, short type, short major, short minor)
 {
   struct inode *ip, *dp;
   char name[DIRSIZ];
@@ -260,6 +260,7 @@ create(char *path, short type, short major, short minor)
 
   if ((ip = dirlookup(dp, name, 0)) != 0)
   {
+    
     iunlockput(dp);
     ilock(ip);
     if (type == T_FILE && (ip->type == T_FILE || ip->type == T_DEVICE))
@@ -267,11 +268,11 @@ create(char *path, short type, short major, short minor)
     iunlockput(ip);
     return 0;
   }
-
   if ((ip = ialloc(dp->dev, type)) == 0)
     panic("create: ialloc");
-
+  
   ilock(ip);
+  
   ip->major = major;
   ip->minor = minor;
   ip->nlink = 1;
@@ -279,6 +280,7 @@ create(char *path, short type, short major, short minor)
 
   if (type == T_DIR)
   {              // Create . and .. entries.
+    
     dp->nlink++; // for ".."
     iupdate(dp);
     // No ip->nlink++ for ".": avoid cyclic ref count.
@@ -290,7 +292,7 @@ create(char *path, short type, short major, short minor)
     panic("create: dirlink");
 
   iunlockput(dp);
-
+  
   return ip;
 }
 
@@ -339,7 +341,35 @@ sys_open(void)
     end_op();
     return -1;
   }
-
+  // 处理符号链接
+  if(ip->type == T_SYMLINK && !(omode & O_NOFOLLOW)) {
+    // 若符号链接指向的仍然是符号链接，则递归的跟随它
+    // 直到找到真正指向的文件
+    // 但深度不能超过MAX_SYMLINK_DEPTH
+    for(int i = 0; i <MAX_SYMLINK_DEPTH; ++i) {
+      // 读出符号链接指向的路径
+      if(readi(ip, 0, (uint64)path, 0, MAXPATH) != MAXPATH) {
+        iunlockput(ip);
+        end_op();
+        return -1;
+      }
+      iunlockput(ip);
+      ip = namei(path);
+      if(ip == 0) {
+        end_op();
+        return -1;
+      }
+      ilock(ip);
+      if(ip->type != T_SYMLINK)
+        break;
+    }
+    // 超过最大允许深度后仍然为符号链接，则返回错误
+    if(ip->type == T_SYMLINK) {
+      iunlockput(ip);
+      end_op();
+      return -1;
+    }
+  }
   if ((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0)
   {
     if (f)
@@ -622,4 +652,56 @@ sys_munmap(void)
   }
 
   return 0;
+}
+uint64
+sys_symlink(void) {
+  char target[MAXPATH], path[MAXPATH];
+  struct inode* ip_path;
+
+  if(argstr(0, target, MAXPATH) < 0 || argstr(1, path, MAXPATH) < 0) {
+    return -1;
+  }
+
+  begin_op();
+  // 分配一个inode结点，create返回锁定的inode
+  ip_path = create(path, T_SYMLINK, 0, 0);
+  if(ip_path == 0) {
+    end_op();
+    return -1;
+  }
+  // 向inode数据块中写入target路径
+  if(writei(ip_path, 0, (uint64)target, 0, MAXPATH) < MAXPATH) {
+    iunlockput(ip_path);
+    end_op();
+    return -1;
+  }
+
+  iunlockput(ip_path);
+  end_op();
+  return 0;
+}
+
+uint64 sys_create(void) {
+    char path[MAXPATH];  // 用于存储文件路径
+    int type;          // 文件类型
+    int major;         // 设备的主设备号
+    int minor;         // 设备的从设备号
+    struct inode *ip;    // 用于返回创建的 inode
+    // 获取系统调用参数：路径、类型、主设备号和从设备号
+    if (argstr(0, path, MAXPATH) < 0 ||  // 获取路径字符串
+        argint(1, &type) < 0 ||           // 获取文件类型
+        argint(2, &major) < 0 ||          // 获取主设备号
+        argint(3, &minor) < 0) {          // 获取从设备号
+        return -1;  // 如果参数获取失败，返回错误
+    }
+    // 调用 create 函数创建文件
+    begin_op();
+    ip = create(path, type, major, minor);
+    
+    // 如果文件创建失败，则返回错误
+    if (ip == 0)
+        return -1;
+    // 如果创建成功，返回 inode 的编号作为文件描述符
+    end_op();
+    return ip->inum;
 }

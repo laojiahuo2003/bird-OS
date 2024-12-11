@@ -1092,6 +1092,7 @@ void reparent2(char *s)
   for (int i = 0; i < 400; i++)
   {
     sysinfo(&info);
+    // printf("%d %d",info.freemem,info.nproc);
     // printf("%d\n", i);
     int pid1 = fork();
     // printf("%d\n", pid1);

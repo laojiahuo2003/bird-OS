@@ -35,3 +35,5 @@
 #define SYS_sem_free 34      // 信号量：释放信号量
 #define SYS_sem_p 35         // 信号量：P操作，获取资源
 #define SYS_sem_v 36         // 信号量：V操作，释放资源
+#define SYS_symlink 37       // 创建软链接
+#define SYS_create 38        // 创建文件

@@ -1,3 +1,4 @@
+#include "param.h"
 struct stat;
 struct rtcdate;
 struct sysinfo;
@@ -34,12 +35,12 @@ void *mmap(void *addr, int length, int prot, int flags, int fd, int offset);
 int munmap(void *addr, int length);
 int sh_var_read(void);
 void sh_var_write(int n);
-
+int symlink(char target[MAXPATH],char path[MAXPATH]);
 int sem_create(int);
 int sem_free(int);
 int sem_p(int);
 int sem_v(int);
-
+int create(char *, short, short, short);
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);
@@ -48,7 +49,7 @@ char *strchr(const char *, char c);
 int strcmp(const char *, const char *);
 void fprintf(int, const char *, ...);
 void printf(const char *, ...);
-char *gets(char *, int max);
+char *gets(char *, int );
 uint strlen(const char *);
 void *memset(void *, int, uint);
 void *malloc(uint);

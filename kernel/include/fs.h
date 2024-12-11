@@ -60,7 +60,7 @@ struct dinode
 
 // Directory is a file containing a sequence of dirent structures.
 #define DIRSIZ 14
-
+#define MAX_SYMLINK_DEPTH 10
 struct dirent
 {
   ushort inum;       // 文件或目录的 inode 编号

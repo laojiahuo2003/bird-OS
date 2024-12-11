@@ -13,6 +13,7 @@
         "assert.h": "c",
         "fcntl.h": "c",
         "stat.h": "c",
-        "syscall.h": "c"
+        "syscall.h": "c",
+        "type_traits": "c"
     }
 }

@@ -148,7 +148,7 @@ UPROGS=\
 	$U/_sleep\
 	$U/_currentproc\
 	$U/_trace\
-	$U/_sysinfotest\
+	$U/_sysinfo\
 	$U/_cowtest\
 	$U/_setp\
 	$U/_lazytest\
@@ -158,8 +158,12 @@ UPROGS=\
 	$U/_mmaptest\
 	$U/_sh_rw_nolock\
 	$U/_sh_rw_lock\
-
-
+	$U/_symlinktest\
+	$U/_bigfile\
+	$U/_create_symlink\
+	$U/_readfile\
+	$U/_writefile\
+	$U/_mkf\
 
 UEXTRA = $(wildcard kernel/include/*.h)
 fs.img: mkfs/mkfs README $(UEXTRA) $(UPROGS)

@@ -140,6 +140,8 @@ extern uint64 sys_sem_create(void);   // 信号量
 extern uint64 sys_sem_free(void);     // 信号量
 extern uint64 sys_sem_p(void);        // 信号量
 extern uint64 sys_sem_v(void);        // 信号量
+extern uint64 sys_symlink(void); 
+extern uint64 sys_create(void);
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -178,6 +180,8 @@ static uint64 (*syscalls[])(void) = {
     [SYS_sem_free] sys_sem_free,
     [SYS_sem_p] sys_sem_p,
     [SYS_sem_v] sys_sem_v,
+    [SYS_symlink] sys_symlink,
+    [SYS_create] sys_create,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -216,6 +220,8 @@ static char *syscall_names[] = {
     [SYS_sem_free] "sys_sem_free",
     [SYS_sem_p] "sys_sem_p",
     [SYS_sem_v] "sys_sem_v",
+    [SYS_symlink] "sys_symlink",
+    [SYS_create] "sys_create",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

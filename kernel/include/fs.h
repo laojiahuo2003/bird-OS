@@ -24,12 +24,16 @@ struct superblock
 
 #define FSMAGIC 0x10203040
 // 直接地址指针是指向文件数据块的指针，
-// 在 addrs[] 数组的前 12 个位置存储直接地址指针。
-#define NDIRECT 12
+// 在 addrs[] 数组的前 11 个位置存储直接地址指针。
+#define NDIRECT 11
 // 一个间接块是一个数据块，存储了指向其他数据块的地址。
 #define NINDIRECT (BSIZE / sizeof(uint))
+// 二级间接块
+#define NDINDIRECT ((BSIZE / sizeof(uint)) * (BSIZE / sizeof(uint)))
 // 一个文件最大可以使用的块数量， 包含了文件的直接块和间接块
-#define MAXFILE (NDIRECT + NINDIRECT)
+#define MAXFILE (NDIRECT + NINDIRECT+NDINDIRECT)
+// 一个块中的地址数量
+#define NADDR_PER_BLOCK (BSIZE / sizeof(uint))  
 
 // On-disk inode structure
 struct dinode
@@ -39,7 +43,7 @@ struct dinode
   short minor;             // Minor device number (T_DEVICE only)
   short nlink;             // Number of links to inode in file system
   uint size;               // Size of file (bytes)
-  uint addrs[NDIRECT + 1]; // Data block addresses
+  uint addrs[NDIRECT + 2];   // Data block addresses
 };
 
 // Inodes per block.

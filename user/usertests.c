@@ -589,17 +589,17 @@ void writebig(char *s)
     printf("%s: error: creat big failed!\n", s);
     exit(1);
   }
-
-  for (i = 0; i < MAXFILE; i++)
+  for (i = 0; i < 268; i++)
   {
-    ((int *)buf)[0] = i;
+   // printf("%d\n",i);
+    ((int *)buf)[0] = i;  // 将 buf 的前四个字节设置为 i
     if (write(fd, buf, BSIZE) != BSIZE)
     {
       printf("%s: error: write big file failed\n", i);
       exit(1);
     }
   }
-
+  
   close(fd);
 
   fd = open("big", O_RDONLY);
@@ -608,7 +608,7 @@ void writebig(char *s)
     printf("%s: error: open big failed!\n", s);
     exit(1);
   }
-
+  printf("3\n");
   n = 0;
   for (;;)
   {
@@ -635,12 +635,14 @@ void writebig(char *s)
     }
     n++;
   }
+  printf("4\n");
   close(fd);
   if (unlink("big") < 0)
   {
     printf("%s: unlink big failed\n", s);
     exit(1);
   }
+  printf("5\n");
 }
 
 // many creates, followed by unlink test

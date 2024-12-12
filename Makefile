@@ -158,7 +158,7 @@ UPROGS=\
 	$U/_mmaptest\
 	$U/_sh_rw_nolock\
 	$U/_sh_rw_lock\
-	$U/_aaa\
+	$U/_sharemm\
 
 
 

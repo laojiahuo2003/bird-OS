@@ -8,7 +8,19 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
-
+struct sharemem;
+// sharemem.c
+void sharememinit();
+void *shmgetat(uint64, uint64);
+int shmrefcount(uint64 key);
+void shmaddcount(uint64 mask);
+int shmkeyused(uint64, uint64);
+int shmrelease(pagetable_t pagetable, uint64 shm, uint64 keymask);
+int allocshm(pagetable_t pagetable, uint64 oldshm, uint64 newshm, uint64 sz, void *phyaddr[]);
+int shmadd(uint64, uint64, void *physaddr[]);
+int deallocshm(pagetable_t pagetable, uint64 oldshm, uint64 newshm);
+int mapshm(pagetable_t pagetable, uint64 oldshm, uint64 newshm, uint64 sz, void **physaddr);
+int shmrm(int key);
 // bio.c
 void binit(void);
 struct buf *bread(uint, uint);

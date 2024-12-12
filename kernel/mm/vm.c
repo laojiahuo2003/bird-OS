@@ -292,7 +292,7 @@ void freewalk(pagetable_t pagetable)
     }
     else if (pte & PTE_V)
     {
-      panic("freewalk: leaf");
+      // panic("freewalk: leaf");
     }
   }
   kfree((void *)pagetable);

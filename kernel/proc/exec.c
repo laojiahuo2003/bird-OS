@@ -115,9 +115,12 @@ int exec(char *path, char **argv)
   oldpagetable = p->pagetable;
   p->pagetable = pagetable;
   p->sz = sz;
-  p->trapframe->epc = elf.entry; // initial program counter = main
-  p->trapframe->sp = sp;         // initial stack pointer
+  p->trapframe->epc = elf.entry;                         // initial program counter = main
+  p->trapframe->sp = sp;                                 // initial stack pointer
+  shmrelease(oldpagetable, proc->shm, proc->shmkeymask); // 回收共享内存
   proc_freepagetable(oldpagetable, oldsz);
+  proc->shm = KERNBASE; // 重置虚拟内存信息
+  proc->shmkeymask = 0;
 
   return argc; // this ends up in a0, the first argument to main(argc, argv)
 

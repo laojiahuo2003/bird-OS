@@ -36,7 +36,7 @@ OBJS = \
   $K/asm/kernelvec.o \
   $K/interrupt/plic.o \
   $K/driver/virtio_disk.o \
-
+  $K/sharemem.o \
 
 
 # riscv64-unknown-elf- or riscv64-linux-gnu-
@@ -158,6 +158,7 @@ UPROGS=\
 	$U/_mmaptest\
 	$U/_sh_rw_nolock\
 	$U/_sh_rw_lock\
+	$U/_aaa\
 
 
 

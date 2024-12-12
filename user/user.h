@@ -34,12 +34,14 @@ void *mmap(void *addr, int length, int prot, int flags, int fd, int offset);
 int munmap(void *addr, int length);
 int sh_var_read(void);
 void sh_var_write(int n);
-
+// 信号量
 int sem_create(int);
 int sem_free(int);
 int sem_p(int);
 int sem_v(int);
-
+// 共享内存
+uint64 shmgetat(int, int);
+int shmrefcount(int);
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);

@@ -12,7 +12,6 @@
 void freerange(void *pa_start, void *pa_end);
 
 extern char end[]; // first address after kernel.
-                   // defined by kernel.ld.
 struct ref_stru
 {
   struct spinlock lock;

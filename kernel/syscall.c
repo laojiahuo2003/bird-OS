@@ -140,6 +140,8 @@ extern uint64 sys_sem_create(void);   // 信号量
 extern uint64 sys_sem_free(void);     // 信号量
 extern uint64 sys_sem_p(void);        // 信号量
 extern uint64 sys_sem_v(void);        // 信号量
+extern uint64 sys_symlink(void); 
+extern uint64 sys_create(void);
 extern uint64 sys_shmgetat(void);     // 共享内存
 extern uint64 sys_shmrefcount(void);  // 共享内存
 
@@ -180,6 +182,8 @@ static uint64 (*syscalls[])(void) = {
     [SYS_sem_free] sys_sem_free,
     [SYS_sem_p] sys_sem_p,
     [SYS_sem_v] sys_sem_v,
+    [SYS_symlink] sys_symlink,
+    [SYS_create] sys_create,
     [SYS_shmgetat] sys_shmgetat,
     [SYS_shmrefcount] sys_shmrefcount,
 }; // 这些索引会从1开始，不是从0开始
@@ -220,6 +224,8 @@ static char *syscall_names[] = {
     [SYS_sem_free] "sys_sem_free",
     [SYS_sem_p] "sys_sem_p",
     [SYS_sem_v] "sys_sem_v",
+    [SYS_symlink] "sys_symlink",
+    [SYS_create] "sys_create",
     [SYS_shmgetat] "sys_shmgetat",
     [SYS_shmrefcount] "sys_shmrefcount",
 };

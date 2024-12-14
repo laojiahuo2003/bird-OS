@@ -77,10 +77,10 @@ void usertrap(void)
     uint64 fault_va = r_stval(); // 获取出错的虚拟地址
     if (cowpage(p->pagetable, fault_va) == 0)
     { // 如果是cow页出错
-      if (fault_va >= p->shm || cowalloc(p->pagetable, PGROUNDDOWN(fault_va)) == 0)
+      if (fault_va >= p->sz || cowalloc(p->pagetable, PGROUNDDOWN(fault_va)) == 0)
         p->killed = 1;
     }
-    else if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->shm && mmap_handler(r_stval(), cause) == 0)
+    else if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && mmap_handler(r_stval(), cause) == 0)
     { //  缺页异常(内存映射文件引起的)
       // ok
     }
@@ -88,7 +88,7 @@ void usertrap(void)
     { //  缺页异常(可能是懒分配引起的)
       // printf("lazy!");
       char *pa; // 分配的物理地址
-      if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->shm && (pa = kalloc()) != 0)
+      if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && (pa = kalloc()) != 0)
       {
         memset(pa, 0, PGSIZE);
         if (mappages(p->pagetable, PGROUNDDOWN(fault_va), PGSIZE, (uint64)pa, PTE_R | PTE_W | PTE_X | PTE_U) != 0)

@@ -41,7 +41,6 @@ void sparse_memory_unmap(char *s)
 {
     int pid;
     char *i, *prev_end, *new_end;
-
     prev_end = sbrk(REGION_SZ);
     if (prev_end == (char *)0xffffffffffffffffL)
     {
@@ -78,7 +77,6 @@ void sparse_memory_unmap(char *s)
             }
         }
     }
-
     exit(0);
 }
 

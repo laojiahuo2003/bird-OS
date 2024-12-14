@@ -167,7 +167,6 @@ UPROGS=\
 	$U/_sharemm\
 
 
->>>>>>> Makefile
 
 UEXTRA = $(wildcard kernel/include/*.h)
 fs.img: mkfs/mkfs README $(UEXTRA) $(UPROGS)

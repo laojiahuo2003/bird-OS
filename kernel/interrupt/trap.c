@@ -97,7 +97,7 @@ void usertrap(void)
           p->killed = 1;
         }
       }
-      else if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && (pa = kalloc()) != 0)
+      else if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && (pa = kalloc()) != 0) // 共享内存p->shm
       {
         memset(pa, 0, PGSIZE);
         if (mappages(p->pagetable, PGROUNDDOWN(fault_va), PGSIZE, (uint64)pa, PTE_R | PTE_W | PTE_X | PTE_U) != 0)

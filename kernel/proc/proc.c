@@ -133,6 +133,8 @@ found:
   p->wait_time = 0;
   p->dyn_priority = 10;
   p->trace_mask = 0; // 设定掩码为0
+  p->shm = KERNBASE; // 初始化shm，刚开始shm与kernbase重合
+  p->shmkeymask = 0; // 初始化shmkeymask
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0)
   {
@@ -181,6 +183,10 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+  // 释放进程
+  shmrelease(p->pagetable, p->shm, p->shmkeymask);
+  p->shm = KERNBASE;
+  p->shmkeymask = 0;
 }
 
 // Create a user page table for a given process,
@@ -308,6 +314,19 @@ int fork(void)
 
     return -1;
   }
+  // 共享内存区信息复制
+  np->shm = proc->shm;
+  np->shmkeymask = proc->shmkeymask;
+  // printf("shmkeymask:%d\n", np->shmkeymask);
+  for (int i = 0; i < 8; ++i)
+  {
+    if (shmkeyused(i, np->shmkeymask)) // 只复制已启用的共享内存区
+    {
+      np->shmva[i] = proc->shmva[i];
+    }
+  }
+  shmaddcount(proc->shmkeymask); // fork新进程，所以共享内存引用数量加一
+
   np->sz = p->sz;
 
   np->parent = p;
@@ -924,6 +943,7 @@ int cps(void)
   }
   return 22; // 返回22
 }
+
 void procnum(uint64 *dst) // 获取进程数
 {
   *dst = 0;

@@ -130,6 +130,7 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
 uint64 sys_cps(void)
 {
   return cps();
@@ -145,6 +146,7 @@ uint64 sys_trace(void)
   myproc()->trace_mask = n; // trace_mask保存了a0的信息，用于调试
   return 0;
 }
+
 uint64 sys_sysinfo(void)
 {
   struct sysinfo info;
@@ -161,6 +163,7 @@ uint64 sys_sysinfo(void)
 
   return 0;
 }
+
 uint64
 sys_execve(void)
 {
@@ -215,11 +218,13 @@ bad:
     kfree(argv[i]);
   return -1;
 }
+
 uint64 sys_getparentpid(void)
 {
   struct proc *p = myproc();
   return p->parent->pid;
 }
+
 uint64 sys_print_pgtable(void)
 {
   struct proc *p = myproc();
@@ -345,4 +350,22 @@ int sys_sem_v()
 
   release(&sems[id].lock); // 释放信号量锁
   return 0;
+}
+
+uint64 sys_shmgetat(void)
+{
+  int key, num;
+  if (argint(0, &key) < 0 || argint(1, &num) < 0)
+    return -1;
+  return (uint64)shmgetat(key, num);
+}
+
+int sys_shmrefcount(void)
+{
+  int key;
+  if (argint(0, &key) < 0)
+  {
+    return -1;
+  }
+  return shmrefcount(key);
 }

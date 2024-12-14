@@ -36,7 +36,7 @@ OBJS = \
   $K/asm/kernelvec.o \
   $K/interrupt/plic.o \
   $K/driver/virtio_disk.o \
-
+  $K/sharemem.o \
 
 
 # riscv64-unknown-elf- or riscv64-linux-gnu-
@@ -164,6 +164,10 @@ UPROGS=\
 	$U/_readfile\
 	$U/_writefile\
 	$U/_mkf\
+	$U/_sharemm\
+
+
+>>>>>>> Makefile
 
 UEXTRA = $(wildcard kernel/include/*.h)
 fs.img: mkfs/mkfs README $(UEXTRA) $(UPROGS)

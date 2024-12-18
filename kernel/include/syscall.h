@@ -41,3 +41,4 @@
 #define SYS_shmrefcount 40   // 共享内存
 #define SYS_sigalarm 41
 #define SYS_sigreturn 42
+#define SYS_connect 43

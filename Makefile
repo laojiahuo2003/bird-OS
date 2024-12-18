@@ -36,7 +36,11 @@ OBJS = \
   $K/asm/kernelvec.o \
   $K/interrupt/plic.o \
   $K/driver/virtio_disk.o \
-  $K/sharemem.o \
+  $K/mm/sharemem.o \
+  $K/net/net.o\
+  $K/net/e1000.o\
+  $K/net/pci.o\
+  $K/sysnet.o
 
 
 # riscv64-unknown-elf- or riscv64-linux-gnu-
@@ -78,7 +82,7 @@ CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
 CFLAGS += -I. -Ikernel/include
 # CFLAGS += -I.
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
-
+CFLAGS += -DNET_TESTS_PORT=$(SERVERPORT)
 # Disable PIE when possible (for Ubuntu 16.10 toolchain)
 ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]no-pie'),)
 CFLAGS += -fno-pie -no-pie
@@ -166,6 +170,7 @@ UPROGS=\
 	$U/program/_mkf\
 	$U/test/_sharemm\
 	$U/test/_alarmtest\
+	$U/test/_nettests
 
 
 
@@ -193,7 +198,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 ifndef CPUS
 CPUS := 3
 endif
-# //FWDPORT = $(shell expr `id -u` % 5000 + 25999)
+FWDPORT = $(shell expr `id -u` % 5000 + 25999)
 QEMUOPTS = -machine virt -bios none -kernel $K/kernel -m 128M -smp $(CPUS) -nographic
 QEMUOPTS += -drive file=fs.img,if=none,format=raw,id=x0
 QEMUOPTS += -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0

@@ -256,7 +256,7 @@ void clockintr()
 int devintr()
 {
   uint64 scause = r_scause();
-
+  
   if ((scause & 0x8000000000000000L) &&
       (scause & 0xff) == 9)
   {
@@ -264,7 +264,6 @@ int devintr()
 
     // irq indicates which device interrupted.
     int irq = plic_claim();
-
     if (irq == UART0_IRQ)
     {
       uartintr();
@@ -272,6 +271,9 @@ int devintr()
     else if (irq == VIRTIO0_IRQ)
     {
       virtio_disk_intr();
+    }
+    else if(irq == E1000_IRQ){
+      e1000_intr();
     }
     else if (irq)
     {

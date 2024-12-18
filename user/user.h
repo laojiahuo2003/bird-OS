@@ -38,6 +38,7 @@ void sh_var_write(int n);
 int symlink(char target[MAXPATH],char path[MAXPATH]);
 int sigalarm(int ticks, void (*handler)());
 int sigreturn(void);
+int connect(uint32, uint16, uint16);
 // 信号量
 int sem_create(int);
 int sem_free(int);

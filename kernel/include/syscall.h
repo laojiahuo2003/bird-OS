@@ -40,3 +40,4 @@
 #define SYS_shmgetat 39      // 共享内存
 #define SYS_shmrefcount 40   // 共享内存
 #define SYS_getcwd 41        // 获取当前工作目录
+#define SYS_dup_new 42       // 复制文件描述符并指定新文件描述符

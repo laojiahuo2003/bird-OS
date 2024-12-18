@@ -68,6 +68,36 @@ sys_dup(void)
   return fd;
 }
 
+uint64 sys_dup_new(void) // 复制文件描述符到指定的新文件描述符的系统调用
+{
+    struct file *f; // 文件指针
+    int newfd; // 新的文件描述符
+
+    // 获取文件指针
+    if(argfd(0, 0, &f) < 0) {
+        return -1;
+    }
+
+    // 获取新文件描述符
+    if(argint(1, &newfd) < 0 || newfd < 0 || newfd >= NOFILE) {
+        return -1;
+    }
+
+    // 如果新文件描述符已占用，则先关闭它
+    if (myproc()->ofile[newfd] != ((void*)0)) {
+        fileclose(myproc()->ofile[newfd]);  // 关闭已占用的文件描述符
+    }
+
+    // 将新文件描述符指向文件指针
+    if ((newfd = fdalloc(f)) < 0)
+      return -1;
+    filedup(f);  // 增加文件指针的引用计数
+
+    return newfd; // 返回新的文件描述符
+}
+
+
+
 uint64
 sys_read(void)
 {
@@ -548,38 +578,6 @@ sys_pipe(void)
   return 0;
 }
 
-<<<<<<< HEAD
-// SYS_dup_new 系统调用实现
-uint64 
-sys_dup_new(void) 
-{
-  int old_fd, new_fd;
-  struct file *f;
-
-  // 获取传入的文件描述符
-  if (argfd(0, &old_fd, &f) < 0 ||  argint(1, &new_fd) < 0)
-    return -1;
-
-  if (old_fd == new_fd)
-   return -1;
-
-  
-  // 检查新文件描述符的有效范围
-  if (new_fd < 0 || new_fd >= NOFILE)
-    return -1;
-  
-  // 关闭new_fd原来的文件结构
-  fileclose(myproc()->ofile[new_fd]);
-  
-  // 复制文件描述符，设置新的文件描述符指向相同的文件结构
-  myproc()->ofile[new_fd] = f;
-  
-
-  // 增加文件描述符的引用计数
-  filedup(f);
-
-  return new_fd;  // 返回新的文件描述符
-=======
 uint64
 sys_mmap(void)
 {
@@ -737,5 +735,63 @@ uint64 sys_mkf(void) {
     // 如果创建成功，返回 inode 的编号作为文件描述符
     end_op();
     return ip->inum;
->>>>>>> master
+}
+
+/*
+uint64 sys_getcwd(void) // 获取当前工作目录的系统调用
+{
+  uint64 addr;
+  // 从用户态获取传入的地址参数，如果失败则返回-1
+  if (argaddr(0, &addr) < 0)
+    return -1;
+
+  struct dirent *de = myproc()->cwd; // 获取当前进程的当前工作目录
+  char path[FAT32_MAX_PATH]; // 用于存储路径的缓冲区
+  char *s;
+  int len;
+
+  // 如果当前目录没有父目录（即根目录），则路径为"/"
+  if (de->parent == NULL) {
+    s = "/";
+  } else {
+    // 从缓冲区末尾开始构造路径字符串
+    s = path + FAT32_MAX_PATH - 1;
+    *s = '\0';
+    while (de->parent) {
+      // 获取当前目录名的长度
+      len = strlen(de->name);
+      // 将目录名复制到缓冲区，并更新指针位置
+      s -= len;
+      if (s <= path)          // 如果到达缓冲区的起始位置，则返回-1，表示无法构造完整路径
+        return -1;
+      strncpy(s, de->name, len);
+      *--s = '/'; // 在目录名前添加斜杠
+      de = de->parent; // 移动到父目录，继续循环
+    }
+  }
+  // 如果传入的地址为0，则分配一个新地址，并映射页表
+  if(addr==0){
+    addr=(uint64)kalloc();
+    mappages(myproc()->pagetable,addr,PGSIZE,addr,PTE_R|PTE_W);
+  }
+  // 将路径字符串从内核空间复制到用户空间，如果失败则返回-1
+  if (copyout2(addr, s, strlen(s) + 1) < 0)
+    return -1;
+  return addr; // 返回路径字符串的用户空间地址
+}
+*/
+
+uint64
+sys_getcwd(void)
+{
+  uint64 addr;
+  if (argaddr(0, &addr) < 0)
+    return -1;
+
+  char *mp = "/";
+
+  if (copyout(myproc()->pagetable, addr, mp, strlen(mp) + 1) < 0)
+    return -1;
+  // printf("[sys_getcwd] cwd: %s, cwd_len: %d, addr: %p\n", mp, strlen(mp) + 1, addr);
+  return addr;
 }

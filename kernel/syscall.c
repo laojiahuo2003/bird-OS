@@ -145,6 +145,7 @@ extern uint64 sys_mkf(void);
 extern uint64 sys_shmgetat(void);     // 共享内存
 extern uint64 sys_shmrefcount(void);  // 共享内存
 extern uint64 sys_getcwd(void);
+extern uint64 sys_dup_new(void);
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -188,7 +189,7 @@ static uint64 (*syscalls[])(void) = {
     [SYS_shmgetat] sys_shmgetat,
     [SYS_shmrefcount] sys_shmrefcount,
     [SYS_getcwd] sys_getcwd,
-    [SYS_dup_new] SYS_dup_new,
+    [SYS_dup_new] sys_dup_new,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",

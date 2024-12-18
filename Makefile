@@ -165,6 +165,7 @@ UPROGS=\
 	$U/program/_writefile\
 	$U/program/_mkf\
 	$U/test/_sharemm\
+	$U/test/_alarmtest\
 
 
 

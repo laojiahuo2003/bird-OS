@@ -55,3 +55,5 @@ entry("symlink");
 entry("mkf");
 entry("shmgetat"); # 共享内存
 entry("shmrefcount");#  共享内存
+entry("sigalarm");
+entry("sigreturn");

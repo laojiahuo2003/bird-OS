@@ -47,7 +47,6 @@ void ls(char *path)
   case T_FILE:
     printf("%s——%d——%d——%l\n", fmtname(path), st.type, st.ino, st.size);
     break;
-
   case T_DIR:
     if (strlen(path) + 1 + DIRSIZ + 1 > sizeof buf)
     {
@@ -77,7 +76,7 @@ void ls(char *path)
 
 int main(int argc, char *argv[])
 {
-  printf("filename——type——inode——size\n");
+  printf("filename  ——type——inode——size\n");
   int i;
 
   if (argc < 2)

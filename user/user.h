@@ -41,7 +41,7 @@ int sem_create(int);
 int sem_free(int);
 int sem_p(int);
 int sem_v(int);
-int create(char *, short, short, short);
+int mkf(char *, short, short, short);
 // 共享内存
 uint64 shmgetat(int, int);
 int shmrefcount(int);

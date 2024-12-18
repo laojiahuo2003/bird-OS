@@ -151,13 +151,16 @@ int main(int argc, char *argv[])
 	{
 		// 去除 "user/" 和 "kernel/include/"
 		char *shortname;
-		if (strncmp(argv[i], "user/", 5) == 0)
-			shortname = argv[i] + 5;
+		//printf("%s\n", argv[i]);
+		if (strncmp(argv[i], "user/test/", 10) == 0)
+			shortname = argv[i] + 10;
 		else if (strncmp(argv[i], "kernel/include/", 15) == 0)
 			shortname = argv[i] + 15;
+		else if (strncmp(argv[i], "user/", 5) == 0)
+			shortname = argv[i] + 5;
 		else
 			shortname = argv[i];
-		printf("%s\n", shortname);
+		//printf("%s\n", shortname);
 		assert(index(shortname, '/') == 0);
 		if ((fd = open(argv[i], 0)) < 0)
 		{

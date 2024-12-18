@@ -52,6 +52,6 @@ entry("sem_free");#  信号量：
 entry("sem_p"); # 信号量：
 entry("sem_v");#  信号量：
 entry("symlink");
-entry("create");
+entry("mkf");
 entry("shmgetat"); # 共享内存
 entry("shmrefcount");#  共享内存

@@ -270,12 +270,11 @@ static struct inode *create(char *path, short type, short major, short minor)
   }
   if ((ip = ialloc(dp->dev, type)) == 0)
     panic("create: ialloc");
-  
   ilock(ip);
-  
   ip->major = major;
   ip->minor = minor;
   ip->nlink = 1;
+  ip->type=type;
   iupdate(ip);
 
   if (type == T_DIR)
@@ -663,10 +662,10 @@ sys_symlink(void) {
   if(argstr(0, target, MAXPATH) < 0 || argstr(1, path, MAXPATH) < 0) {
     return -1;
   }
-
   begin_op();
   // 分配一个inode结点，create返回锁定的inode
   ip_path = create(path, T_SYMLINK, 0, 0);
+  
   if(ip_path == 0) {
     end_op();
     return -1;
@@ -683,7 +682,7 @@ sys_symlink(void) {
   return 0;
 }
 
-uint64 sys_create(void) {
+uint64 sys_mkf(void) {
     char path[MAXPATH];  // 用于存储文件路径
     int type;          // 文件类型
     int major;         // 设备的主设备号

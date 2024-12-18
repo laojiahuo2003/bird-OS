@@ -4,7 +4,7 @@
 #include "stat.h"
 #include "riscv.h"
 #include "fs.h"
-#include "user.h"
+#include "user/user.h"
 
 void mmap_test();
 void fork_test();

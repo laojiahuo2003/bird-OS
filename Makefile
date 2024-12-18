@@ -116,11 +116,11 @@ $U/usys.S : $U/usys.pl
 $U/usys.o : $U/usys.S
 	$(CC) $(CFLAGS) -c -o $U/usys.o $U/usys.S
 
-$U/_forktest: $U/forktest.o $(ULIB)
+$U/test/_forktest: $U/test/forktest.o $(ULIB)
 	# forktest has less library code linked in - needs to be small
 	# in order to be able to max out the proc table.
-	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/_forktest $U/forktest.o $U/ulib.o $U/usys.o
-	$(OBJDUMP) -S $U/_forktest > $U/forktest.asm
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/test/_forktest $U/test/forktest.o $U/ulib.o $U/usys.o
+	$(OBJDUMP) -S $U/test/_forktest > $U/test/forktest.asm
 
 mkfs/mkfs: mkfs/mkfs.c $K/include/fs.h $K/include/param.h
 	gcc -Werror -Wall -I. -o mkfs/mkfs mkfs/mkfs.c
@@ -131,7 +131,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/include/fs.h $K/include/param.h
 UPROGS=\
 	$U/_cat\
 	$U/_echo\
-	$U/_forktest\
+	$U/test/_forktest\
 	$U/_grep\
 	$U/_init\
 	$U/_kill\
@@ -141,7 +141,7 @@ UPROGS=\
 	$U/_rm\
 	$U/_sh\
 	$U/_stressfs\
-	$U/_usertests\
+	$U/test/_usertests\
 	$U/_grind\
 	$U/_wc\
 	$U/_zombie\
@@ -149,18 +149,18 @@ UPROGS=\
 	$U/_currentproc\
 	$U/_trace\
 	$U/_sysinfo\
-	$U/_cowtest\
+	$U/test/_cowtest\
 	$U/_setp\
-	$U/_lazytest\
+	$U/test/_lazytest\
 	$U/_execve\
 	$U/_getparentpid\
 	$U/_print_pgtable\
-	$U/_mmaptest\
+	$U/test/_mmaptest\
 	$U/_sh_rw_nolock\
 	$U/_sh_rw_lock\
-	$U/_symlinktest\
-	$U/_bigfile\
-	$U/_create_symlink\
+	$U/test/_symlinktest\
+	$U/test/_bigfile\
+	$U/_symlink\
 	$U/_readfile\
 	$U/_writefile\
 	$U/_mkf\

@@ -11,7 +11,7 @@ void write_file(const char *filename, const char *content) {
     int content_len;   // 内容的长度
 
     // 打开文件
-    fd = open(filename, O_CREATE | O_WRONLY);  // 创建并以只写模式打开文件
+    fd = open(filename, O_WRONLY);  // 只写模式打开文件
     if (fd < 0) 
     {
         printf("Error: Could not open file %s\n", filename);

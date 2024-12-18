@@ -39,3 +39,4 @@
 #define SYS_mkf 38        // 创建文件
 #define SYS_shmgetat 39      // 共享内存
 #define SYS_shmrefcount 40   // 共享内存
+#define SYS_getcwd 41        // 获取当前工作目录

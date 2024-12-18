@@ -29,9 +29,6 @@ int trace(int);
 int sysinfo(struct sysinfo *);
 int setPriority(int pid, int priority);
 int execve(const char *path, char *argv[], char *envp[]);
-<<<<<<< HEAD
-int dup_new(int);
-=======
 int getparentpid(void);
 int print_pgtable(void);
 void *mmap(void *addr, int length, int prot, int flags, int fd, int offset);
@@ -48,7 +45,6 @@ int mkf(char *, short, short, short);
 // 共享内存
 uint64 shmgetat(int, int);
 int shmrefcount(int);
->>>>>>> master
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);

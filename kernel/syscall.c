@@ -188,6 +188,7 @@ static uint64 (*syscalls[])(void) = {
     [SYS_shmgetat] sys_shmgetat,
     [SYS_shmrefcount] sys_shmrefcount,
     [SYS_getcwd] sys_getcwd,
+    [SYS_dup_new] SYS_dup_new,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -231,6 +232,7 @@ static char *syscall_names[] = {
     [SYS_shmgetat] "sys_shmgetat",
     [SYS_shmrefcount] "sys_shmrefcount",
     [SYS_getcwd] "sys_getcwd",
+    [SYS_dup_new] "sys_dup_new",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

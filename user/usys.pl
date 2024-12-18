@@ -41,9 +41,6 @@ entry("trace");
 entry("sysinfo");
 entry("setPriority");
 entry("execve");
-<<<<<<< HEAD
-entry("dup_new");
-=======
 entry("getparentpid");
 entry("print_pgtable");
 entry("mmap");
@@ -58,4 +55,3 @@ entry("symlink");
 entry("mkf");
 entry("shmgetat"); # 共享内存
 entry("shmrefcount");#  共享内存
->>>>>>> master

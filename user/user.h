@@ -1,3 +1,4 @@
+#include "param.h"
 struct stat;
 struct rtcdate;
 struct sysinfo;
@@ -28,7 +29,26 @@ int trace(int);
 int sysinfo(struct sysinfo *);
 int setPriority(int pid, int priority);
 int execve(const char *path, char *argv[], char *envp[]);
+<<<<<<< HEAD
 int dup_new(int);
+=======
+int getparentpid(void);
+int print_pgtable(void);
+void *mmap(void *addr, int length, int prot, int flags, int fd, int offset);
+int munmap(void *addr, int length);
+int sh_var_read(void);
+void sh_var_write(int n);
+int symlink(char target[MAXPATH],char path[MAXPATH]);
+// 信号量
+int sem_create(int);
+int sem_free(int);
+int sem_p(int);
+int sem_v(int);
+int mkf(char *, short, short, short);
+// 共享内存
+uint64 shmgetat(int, int);
+int shmrefcount(int);
+>>>>>>> master
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);
@@ -37,7 +57,7 @@ char *strchr(const char *, char c);
 int strcmp(const char *, const char *);
 void fprintf(int, const char *, ...);
 void printf(const char *, ...);
-char *gets(char *, int max);
+char *gets(char *, int );
 uint strlen(const char *);
 void *memset(void *, int, uint);
 void *malloc(uint);

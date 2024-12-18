@@ -7,10 +7,10 @@
 volatile static int started = 0;
 
 // start() jumps here in supervisor mode on all CPUs.
-void
-main()
+void main()
 {
-  if(cpuid() == 0){
+  if (cpuid() == 0)
+  {
     consoleinit();
     printfinit();
     printf("\n");
@@ -25,30 +25,34 @@ main()
     printf("\n");
     printf("bird-os is booting\n");
     printf("\n");
-    kinit();         // 初始化内存，将所有可用内存切碎
-    kvminit();       // 创建内核页表，完成内核虚拟地址映射
-    kvminithart();   // 把内核页表物理地址放入当前CPU核的页表基地寄存器(satp)中
-    procinit();      // process table
-    trapinit();      // trap vectors
-    trapinithart();  // install kernel trap vector
-    plicinit();      // set up interrupt controller
-    plicinithart();  // ask PLIC for device interrupts
-    binit();         // buffer cache
-    iinit();         // inode cache
-    fileinit();      // file table
+    kinit();            // 初始化内存，将所有可用内存切碎
+    kvminit();          // 创建内核页表，完成内核虚拟地址映射
+    kvminithart();      // 把内核页表物理地址放入当前CPU核的页表基地寄存器(satp)中
+    procinit();         // process table
+    trapinit();         // trap vectors
+    trapinithart();     // install kernel trap vector
+    plicinit();         // set up interrupt controller
+    plicinithart();     // ask PLIC for device interrupts
+    binit();            // buffer cache
+    iinit();            // inode cache
+    fileinit();         // file table
     virtio_disk_init(); // emulated hard disk
-    userinit();      // first user process
-    __sync_synchronize();//防止编译器优化，确保后续的任何操作都是初始化之后进行
+    initsem();          // 信号量数组初始化
+    sharememinit();
+    userinit();           // first user process
+    __sync_synchronize(); // 防止编译器优化，确保后续的任何操作都是初始化之后进行
     started = 1;
-  } else {
-    while(started == 0)
+  }
+  else
+  {
+    while (started == 0)
       ;
     __sync_synchronize();
     printf("hart %d starting\n", cpuid());
-    kvminithart();    // turn on paging
-    trapinithart();   // install kernel trap vector
-    plicinithart();   // ask PLIC for device interrupts
+    kvminithart();  // turn on paging
+    trapinithart(); // install kernel trap vector
+    plicinithart(); // ask PLIC for device interrupts
   }
 
-  scheduler();        
+  scheduler();
 }

@@ -1,8 +1,7 @@
- 
 {
     "version": "2.0.0",
-    "options": { 
-        "cwd": "/home/hey/xv6-labs-2020"
+    "options": {
+        "cwd": "/home/hey/project2608132-272904"
     },
     "tasks": [
         {

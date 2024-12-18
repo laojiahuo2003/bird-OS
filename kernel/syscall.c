@@ -130,7 +130,24 @@ extern uint64 sys_trace(void);
 extern uint64 sys_sysinfo(void);
 extern uint64 sys_setPriority(void);
 extern uint64 sys_execve(void);
+<<<<<<< HEAD
 extern uint64 sys_dup_new(void);
+=======
+extern uint64 sys_getparentpid(void);
+extern uint64 sys_print_pgtable(void);
+extern uint64 sys_mmap(void);
+extern uint64 sys_munmap(void);
+extern uint64 sys_sh_var_read(void);  // 信号量
+extern uint64 sys_sh_var_write(void); // 信号量
+extern uint64 sys_sem_create(void);   // 信号量
+extern uint64 sys_sem_free(void);     // 信号量
+extern uint64 sys_sem_p(void);        // 信号量
+extern uint64 sys_sem_v(void);        // 信号量
+extern uint64 sys_symlink(void); 
+extern uint64 sys_mkf(void);
+extern uint64 sys_shmgetat(void);     // 共享内存
+extern uint64 sys_shmrefcount(void);  // 共享内存
+>>>>>>> master
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -159,7 +176,24 @@ static uint64 (*syscalls[])(void) = {
     [SYS_sysinfo] sys_sysinfo,
     [SYS_setPriority] sys_setPriority,
     [SYS_execve] sys_execve,
+<<<<<<< HEAD
     [SYS_dup_new] sys_dup_new,
+=======
+    [SYS_getparentpid] sys_getparentpid,
+    [SYS_print_pgtable] sys_print_pgtable,
+    [SYS_mmap] sys_mmap,
+    [SYS_munmap] sys_munmap,
+    [SYS_sh_var_read] sys_sh_var_read,   // 信号量
+    [SYS_sh_var_write] sys_sh_var_write, // 信号量
+    [SYS_sem_create] sys_sem_create,
+    [SYS_sem_free] sys_sem_free,
+    [SYS_sem_p] sys_sem_p,
+    [SYS_sem_v] sys_sem_v,
+    [SYS_symlink] sys_symlink,
+    [SYS_mkf] sys_mkf,
+    [SYS_shmgetat] sys_shmgetat,
+    [SYS_shmrefcount] sys_shmrefcount,
+>>>>>>> master
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -188,7 +222,25 @@ static char *syscall_names[] = {
     [SYS_sysinfo] "sys_sysinfo",
     [SYS_setPriority] "setPriority",
     [SYS_execve] "sys_execve",
+<<<<<<< HEAD
     [SYS_dup_new] "sys_dup_new"};
+=======
+    [SYS_getparentpid] "sys_getparentpid",
+    [SYS_print_pgtable] "sys_print_pgtable",
+    [SYS_mmap] "sys_mmap",
+    [SYS_munmap] "sys_munmap",
+    [SYS_sh_var_read] "sys_sh_var_read",   // 信号量
+    [SYS_sh_var_write] "sys_sh_var_write", // 信号量
+    [SYS_sem_create] "sys_sem_create",
+    [SYS_sem_free] "sys_sem_free",
+    [SYS_sem_p] "sys_sem_p",
+    [SYS_sem_v] "sys_sem_v",
+    [SYS_symlink] "sys_symlink",
+    [SYS_mkf] "sys_mkf",
+    [SYS_shmgetat] "sys_shmgetat",
+    [SYS_shmrefcount] "sys_shmrefcount",
+};
+>>>>>>> master
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {
   int num;

@@ -39,3 +39,6 @@
 #define SYS_mkf 38        // 创建文件
 #define SYS_shmgetat 39      // 共享内存
 #define SYS_shmrefcount 40   // 共享内存
+#define SYS_sigalarm 41
+#define SYS_sigreturn 42
+#define SYS_connect 43

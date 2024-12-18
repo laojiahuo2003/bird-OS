@@ -369,3 +369,18 @@ int sys_shmrefcount(void)
   }
   return shmrefcount(key);
 }
+// sysproc.c
+uint64 sys_sigalarm(void) {
+  int n;
+  uint64 fn;
+  if(argint(0, &n) < 0)
+    return -1;
+  if(argaddr(1, &fn) < 0)
+    return -1;
+  
+  return sigalarm(n, (void(*)())(fn));
+}
+
+uint64 sys_sigreturn(void) {
+	return sigreturn();
+}

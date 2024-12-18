@@ -37,9 +37,9 @@ OBJS = \
   $K/interrupt/plic.o \
   $K/driver/virtio_disk.o \
   $K/mm/sharemem.o \
-  $K/net/net.o\
-  $K/net/e1000.o\
-  $K/net/pci.o\
+  $K/network/net.o\
+  $K/network/e1000.o\
+  $K/network/pci.o\
   $K/sysnet.o
 
 

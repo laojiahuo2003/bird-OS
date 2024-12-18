@@ -37,6 +37,8 @@ void main()
     iinit();            // inode cache
     fileinit();         // file table
     virtio_disk_init(); // emulated hard disk
+    pci_init();
+    sockinit();
     initsem();          // 信号量数组初始化
     sharememinit();
     userinit();           // first user process

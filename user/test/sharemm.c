@@ -1,6 +1,6 @@
 #include "types.h"
 #include "stat.h"
-#include "user.h"
+#include "user/user.h"
 #include "fs.h"
 
 int main(void)

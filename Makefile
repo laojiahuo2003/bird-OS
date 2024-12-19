@@ -36,6 +36,7 @@ OBJS = \
   $K/asm/kernelvec.o \
   $K/interrupt/plic.o \
   $K/driver/virtio_disk.o \
+  $K/proc/messagequeue.o \
   $K/mm/sharemem.o \
   $K/network/net.o\
   $K/network/e1000.o\

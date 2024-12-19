@@ -83,7 +83,7 @@ make clean
 
 ### 运行效果
 
-<img src="C:\Users\47615\AppData\Roaming\Typora\typora-user-images\image-20241219114355737.png" alt="image-20241219114355737" style="zoom: 80%;" />
+<img src="https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/raw/master/docs/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_2024-12-19_114254.png" style="zoom: 80%;" />
 
 ## 内核各模块设计综述
 

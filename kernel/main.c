@@ -41,6 +41,7 @@ void main()
     sockinit();
     initsem();          // 信号量数组初始化
     sharememinit();
+    mqinit();
     userinit();           // first user process
     __sync_synchronize(); // 防止编译器优化，确保后续的任何操作都是初始化之后进行
     started = 1;

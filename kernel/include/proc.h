@@ -136,11 +136,16 @@ struct proc
   uint shm;        // 本进程共享内存区域的下边界
   uint shmkeymask; // 本进程的8个共享内存区与使用掩码(位图)
   void *shmva[8];  // 本进程共享内存起始地址(虚地址)列表
-   int alarm_interval;          // Alarm interval (0 for disabled)
+
+
+  uint mqmask; // 本进程使用的消息队列（掩码）
+
+  int alarm_interval;          // Alarm interval (0 for disabled)
   void(*alarm_handler)();      // Alarm handler
   int alarm_ticks;             // How many ticks left before next alarm goes off
   struct trapframe *alarm_trapframe;  // A copy of trapframe right before running alarm_handler
   int alarm_goingoff;          // Is an alarm currently going off and hasn't not yet returned? (prevent re-entrance of alarm_handler)
+
 };
 
 extern struct proc proc[NPROC]; // 声明进程表（全局）

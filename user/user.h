@@ -35,7 +35,10 @@ void *mmap(void *addr, int length, int prot, int flags, int fd, int offset);
 int munmap(void *addr, int length);
 int sh_var_read(void);
 void sh_var_write(int n);
-int symlink(char target[MAXPATH], char path[MAXPATH]);
+int symlink(char target[MAXPATH],char path[MAXPATH]);
+int sigalarm(int ticks, void (*handler)());
+int sigreturn(void);
+int connect(uint32, uint16, uint16);
 // 信号量
 int sem_create(int);
 int sem_free(int);

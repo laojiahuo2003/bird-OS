@@ -124,8 +124,22 @@ void usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if (which_dev == 2)
+  if(which_dev == 2) {
+    if(p->alarm_interval != 0) { // 如果设定了时钟事件
+      if(--p->alarm_ticks <= 0) { // 时钟倒计时 -1 tick，如果已经到达或超过设定的 tick 数
+        if(!p->alarm_goingoff) { // 确保没有时钟正在运行
+          p->alarm_ticks = p->alarm_interval;
+          // jump to execute alarm_handler
+          *p->alarm_trapframe = *p->trapframe; // backup trapframe
+          p->trapframe->epc = (uint64)p->alarm_handler;
+          p->alarm_goingoff = 1;
+        }
+        // 如果一个时钟到期的时候已经有一个时钟处理函数正在运行，则会推迟到原处理函数运行完成后的下一个 tick 才触发这次时钟
+      }
+    }
     yield();
+  }
+
 
   usertrapret();
 }
@@ -242,7 +256,7 @@ void clockintr()
 int devintr()
 {
   uint64 scause = r_scause();
-
+  
   if ((scause & 0x8000000000000000L) &&
       (scause & 0xff) == 9)
   {
@@ -250,7 +264,6 @@ int devintr()
 
     // irq indicates which device interrupted.
     int irq = plic_claim();
-
     if (irq == UART0_IRQ)
     {
       uartintr();
@@ -258,6 +271,9 @@ int devintr()
     else if (irq == VIRTIO0_IRQ)
     {
       virtio_disk_intr();
+    }
+    else if(irq == E1000_IRQ){
+      e1000_intr();
     }
     else if (irq)
     {
@@ -358,5 +374,21 @@ int mmap_handler(int va, int cause)
     return -1;
   }
 
+  return 0;
+}
+int sigalarm(int ticks, void(*handler)()) {
+  // 设置 myproc 中的相关属性
+  struct proc *p = myproc();
+  p->alarm_interval = ticks;
+  p->alarm_handler = handler;
+  p->alarm_ticks = ticks;
+  return 0;
+}
+
+int sigreturn() {
+  // 将 trapframe 恢复到时钟中断之前的状态，恢复原本正在执行的程序流
+  struct proc *p = myproc();
+  *p->trapframe = *p->alarm_trapframe;
+  p->alarm_goingoff = 0;
   return 0;
 }

@@ -154,6 +154,8 @@ int main(int argc, char *argv[])
 		//printf("%s\n", argv[i]);
 		if (strncmp(argv[i], "user/test/", 10) == 0)
 			shortname = argv[i] + 10;
+		else if (strncmp(argv[i], "user/program/", 13) == 0)
+			shortname = argv[i] + 13;
 		else if (strncmp(argv[i], "kernel/include/", 15) == 0)
 			shortname = argv[i] + 15;
 		else if (strncmp(argv[i], "user/", 5) == 0)

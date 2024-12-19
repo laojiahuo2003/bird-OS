@@ -38,6 +38,11 @@ OBJS = \
   $K/driver/virtio_disk.o \
   $K/sharemem.o \
   $K/proc/messagequeue.o
+  $K/mm/sharemem.o \
+  $K/network/net.o\
+  $K/network/e1000.o\
+  $K/network/pci.o\
+  $K/sysnet.o
 
 
 # riscv64-unknown-elf- or riscv64-linux-gnu-
@@ -79,7 +84,7 @@ CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
 CFLAGS += -I. -Ikernel/include
 # CFLAGS += -I.
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
-
+CFLAGS += -DNET_TESTS_PORT=$(SERVERPORT)
 # Disable PIE when possible (for Ubuntu 16.10 toolchain)
 ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]no-pie'),)
 CFLAGS += -fno-pie -no-pie
@@ -90,21 +95,21 @@ endif
 
 LDFLAGS = -z max-page-size=4096
 
-$K/kernel: $(OBJS) $K/kernel.ld $U/initcode
+$K/kernel: $(OBJS) $K/kernel.ld $U/program/initcode
 	$(LD) $(LDFLAGS) -T $K/kernel.ld -o $K/kernel $(OBJS) 
 	$(OBJDUMP) -S $K/kernel > $K/kernel.asm
 	$(OBJDUMP) -t $K/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $K/kernel.sym
 
-$U/initcode: $U/initcode.S
-	$(CC) $(CFLAGS) -march=rv64g -nostdinc -I. -Ikernel -c $U/initcode.S -o $U/initcode.o
-	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o $U/initcode.out $U/initcode.o
-	$(OBJCOPY) -S -O binary $U/initcode.out $U/initcode
-	$(OBJDUMP) -S $U/initcode.o > $U/initcode.asm
+$U/program/initcode: $U/program/initcode.S
+	$(CC) $(CFLAGS) -march=rv64g -nostdinc -I. -Ikernel -c $U/program/initcode.S -o $U/program/initcode.o
+	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o $U/program/initcode.out $U/program/initcode.o
+	$(OBJCOPY) -S -O binary $U/program/initcode.out $U/program/initcode
+	$(OBJDUMP) -S $U/program/initcode.o > $U/program/initcode.asm
 
 tags: $(OBJS) _init
 	etags *.S *.c
 
-ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o
+ULIB = $U/program/ulib.o $U/usys.o $U/program/printf.o $U/program/umalloc.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -120,7 +125,7 @@ $U/usys.o : $U/usys.S
 $U/test/_forktest: $U/test/forktest.o $(ULIB)
 	# forktest has less library code linked in - needs to be small
 	# in order to be able to max out the proc table.
-	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/test/_forktest $U/test/forktest.o $U/ulib.o $U/usys.o
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $U/test/_forktest $U/test/forktest.o $U/program/ulib.o $U/usys.o
 	$(OBJDUMP) -S $U/test/_forktest > $U/test/forktest.asm
 
 mkfs/mkfs: mkfs/mkfs.c $K/include/fs.h $K/include/param.h
@@ -130,55 +135,66 @@ mkfs/mkfs: mkfs/mkfs.c $K/include/fs.h $K/include/param.h
 .PRECIOUS: %.o
 
 UPROGS=\
-	$U/_cat\
-	$U/_echo\
+	$U/program/_cat\
+	$U/program/_echo\
 	$U/test/_forktest\
-	$U/_grep\
-	$U/_init\
-	$U/_kill\
-	$U/_ln\
-	$U/_ls\
-	$U/_mkdir\
-	$U/_rm\
-	$U/_sh\
-	$U/_stressfs\
+	$U/program/_grep\
+	$U/program/_init\
+	$U/program/_kill\
+	$U/program/_ln\
+	$U/program/_ls\
+	$U/program/_mkdir\
+	$U/program/_rm\
+	$U/program/_sh\
+	$U/program/_stressfs\
 	$U/test/_usertests\
-	$U/_grind\
-	$U/_wc\
-	$U/_zombie\
-	$U/_sleep\
-	$U/_currentproc\
-	$U/_trace\
-	$U/_sysinfo\
+	$U/program/_grind\
+	$U/program/_wc\
+	$U/program/_zombie\
+	$U/program/_sleep\
+	$U/program/_currentproc\
+	$U/program/_trace\
+	$U/program/_sysinfo\
 	$U/test/_cowtest\
-	$U/_setp\
+	$U/program/_setp\
 	$U/test/_lazytest\
-	$U/_execve\
-	$U/_getparentpid\
-	$U/_print_pgtable\
+	$U/program/_execve\
+	$U/program/_getparentpid\
+	$U/program/_print_pgtable\
 	$U/test/_mmaptest\
-	$U/_sh_rw_nolock\
-	$U/_sh_rw_lock\
+	$U/test/_sh_rw_nolock\
+	$U/test/_sh_rw_lock\
 	$U/test/_symlinktest\
 	$U/test/_bigfile\
+<<<<<<< Makefile
 	$U/_symlink\
 	$U/_readfile\
 	$U/_writefile\
 	$U/_mkf\
 	$U/_sharemm\
 	$U/test/_msgtest\
+=======
+	$U/program/_symlink\
+	$U/program/_readfile\
+	$U/program/_writefile\
+	$U/program/_mkf\
+	$U/test/_sharemm\
+	$U/test/_alarmtest\
+	$U/test/_nettests
+>>>>>>> Makefile
 
 
 
 UEXTRA = $(wildcard kernel/include/*.h)
-fs.img: mkfs/mkfs README $(UEXTRA) $(UPROGS)
-	mkfs/mkfs fs.img README $(UEXTRA) $(UPROGS)
+fs.img: mkfs/mkfs $(UEXTRA) $(UPROGS)
+	mkfs/mkfs fs.img $(UEXTRA) $(UPROGS)
 
 -include kernel/*.d user/*.d
 
 clean: 
 	rm -f *.tex *.dvi *.idx *.aux *.log *.ind *.ilg \
 	*/*.o */*.d */*.asm */*.sym \
+	*/*/*.o */*/*.d */*/*.asm */*/*.sym \
 	$U/initcode $U/initcode.out $K/kernel fs.img \
 	mkfs/mkfs .gdbinit \
         $U/usys.S \
@@ -193,11 +209,12 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 ifndef CPUS
 CPUS := 3
 endif
-
+FWDPORT = $(shell expr `id -u` % 5000 + 25999)
 QEMUOPTS = -machine virt -bios none -kernel $K/kernel -m 128M -smp $(CPUS) -nographic
 QEMUOPTS += -drive file=fs.img,if=none,format=raw,id=x0
 QEMUOPTS += -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
-
+QEMUOPTS += -netdev user,id=net0,hostfwd=udp::$(FWDPORT)-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap
+QEMUOPTS += -device e1000,netdev=net0,bus=pcie.0
 qemu: $K/kernel fs.img
 	$(QEMU) $(QEMUOPTS)
 
@@ -207,4 +224,11 @@ qemu: $K/kernel fs.img
 qemu-gdb: $K/kernel .gdbinit fs.img
 	@echo "*** Now run 'gdb' in another window." 1>&2
 	$(QEMU) $(QEMUOPTS) -S $(QEMUGDB)
+SERVERPORT = $(shell expr `id -u` % 5000 + 25099)
+
+server:
+	python3 server.py $(SERVERPORT)
+
+ping:
+	python3 ping.py $(FWDPORT)
 

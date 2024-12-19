@@ -1,10 +1,10 @@
-# BirdOS（**参赛方向：**OS原理赛道——小型内核实现）
+# BirdOS（参赛方向：OS原理赛道——小型内核实现）
 
 ## **项目简介**
 
 本项目是一个基于xv6-RISCV实现的小型内核操作系统，旨在开发过程中对xv6的各个模块进行改进和优化。在原有基础上，我们分别在进程调度、内存管理、文件管理几个方面完善了功能。截至目前一共实现了XX个系统调用，为用户提供了更丰富 的系统服务。
 
-**开发过程**：已记录在项目根目录下的[开发日志]()中。
+**开发过程**：已记录在项目根目录下的[开发日志](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97.md)中。
 
 ## 内核架构
 
@@ -75,7 +75,7 @@ make clean
 
 ### 运行效果
 
-<img src="C:\Users\47615\AppData\Roaming\Typora\typora-user-images\image-20241219114355737.png" alt="image-20241219114355737" style="zoom: 80%;" />
+<img src="https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/raw/master/docs/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_2024-12-19_114254.png" style="zoom: 80%;" />
 
 ## 内核各模块设计综述
 

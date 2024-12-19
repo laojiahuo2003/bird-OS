@@ -36,8 +36,7 @@ OBJS = \
   $K/asm/kernelvec.o \
   $K/interrupt/plic.o \
   $K/driver/virtio_disk.o \
-  $K/sharemem.o \
-  $K/proc/messagequeue.o
+  $K/proc/messagequeue.o \
   $K/mm/sharemem.o \
   $K/network/net.o\
   $K/network/e1000.o\
@@ -166,14 +165,6 @@ UPROGS=\
 	$U/test/_sh_rw_lock\
 	$U/test/_symlinktest\
 	$U/test/_bigfile\
-<<<<<<< Makefile
-	$U/_symlink\
-	$U/_readfile\
-	$U/_writefile\
-	$U/_mkf\
-	$U/_sharemm\
-	$U/test/_msgtest\
-=======
 	$U/program/_symlink\
 	$U/program/_readfile\
 	$U/program/_writefile\
@@ -181,7 +172,6 @@ UPROGS=\
 	$U/test/_sharemm\
 	$U/test/_alarmtest\
 	$U/test/_nettests
->>>>>>> Makefile
 
 
 

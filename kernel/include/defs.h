@@ -9,6 +9,14 @@ struct sleeplock;
 struct stat;
 struct superblock;
 struct sharemem;
+// messagequeue.c
+void mqinit();                 // 初始化系统消息队列
+int mqget(uint);               // 申请使用某个消息队列
+int msgsnd(uint, void *, int); // 发送消息
+int msgrcv(uint, void *, int); // 接收消息
+void releasemq(uint);          // 释放消息队列
+void releasemq2(int);
+void addmqcount(uint); // 增加消息队列的引用计数
 // sharemem.c
 void sharememinit();
 void *shmgetat(uint64, uint64);

@@ -128,6 +128,7 @@ static struct proc *allocproc(void)
 found:
 
   p->pid = allocpid();
+  p->mqmask = 0;
   p->priority = 10; // 设定优先级为10
   p->cpu_time = 0;
   p->wait_time = 0;
@@ -327,6 +328,8 @@ int fork(void)
   }
   shmaddcount(proc->shmkeymask); // fork新进程，所以共享内存引用数量加一
 
+  addmqcount(p->mqmask);  // 消息队列引用数量+1
+  np->mqmask = p->mqmask; // 掩码复制
   np->sz = p->sz;
 
   np->parent = p;
@@ -500,6 +503,8 @@ int wait(uint64 addr)
         {
           // Found one.
           pid = np->pid;
+          releasemq2(p->mqmask);
+          p->mqmask = 0;
           if (addr != 0 && copyout(p->pagetable, addr, (char *)&np->xstate,
                                    sizeof(np->xstate)) < 0)
           {

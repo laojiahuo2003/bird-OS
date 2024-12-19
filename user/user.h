@@ -35,7 +35,7 @@ void *mmap(void *addr, int length, int prot, int flags, int fd, int offset);
 int munmap(void *addr, int length);
 int sh_var_read(void);
 void sh_var_write(int n);
-int symlink(char target[MAXPATH],char path[MAXPATH]);
+int symlink(char target[MAXPATH], char path[MAXPATH]);
 // 信号量
 int sem_create(int);
 int sem_free(int);
@@ -45,6 +45,10 @@ int mkf(char *, short, short, short);
 // 共享内存
 uint64 shmgetat(int, int);
 int shmrefcount(int);
+// 消息队列
+int mqget(uint);               // 申请使用某个消息队列
+int msgsnd(uint, void *, int); // 发送消息
+int msgrcv(uint, void *, int); // 接收消息
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);
@@ -53,7 +57,7 @@ char *strchr(const char *, char c);
 int strcmp(const char *, const char *);
 void fprintf(int, const char *, ...);
 void printf(const char *, ...);
-char *gets(char *, int );
+char *gets(char *, int);
 uint strlen(const char *);
 void *memset(void *, int, uint);
 void *malloc(uint);

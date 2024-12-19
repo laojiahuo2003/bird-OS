@@ -140,10 +140,13 @@ extern uint64 sys_sem_create(void);   // 信号量
 extern uint64 sys_sem_free(void);     // 信号量
 extern uint64 sys_sem_p(void);        // 信号量
 extern uint64 sys_sem_v(void);        // 信号量
-extern uint64 sys_symlink(void); 
+extern uint64 sys_symlink(void);
 extern uint64 sys_mkf(void);
-extern uint64 sys_shmgetat(void);     // 共享内存
-extern uint64 sys_shmrefcount(void);  // 共享内存
+extern uint64 sys_shmgetat(void);    // 共享内存
+extern uint64 sys_shmrefcount(void); // 共享内存
+extern uint64 sys_mqget(void);
+extern uint64 sys_msgsnd(void);
+extern uint64 sys_msgrcv(void);
 
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -186,6 +189,9 @@ static uint64 (*syscalls[])(void) = {
     [SYS_mkf] sys_mkf,
     [SYS_shmgetat] sys_shmgetat,
     [SYS_shmrefcount] sys_shmrefcount,
+    [SYS_mqget] sys_mqget,
+    [SYS_msgsnd] sys_msgsnd,
+    [SYS_msgrcv] sys_msgrcv,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -228,6 +234,9 @@ static char *syscall_names[] = {
     [SYS_mkf] "sys_mkf",
     [SYS_shmgetat] "sys_shmgetat",
     [SYS_shmrefcount] "sys_shmrefcount",
+    [SYS_mqget] "sys_mqget",
+    [SYS_msgsnd] "sys_msgsnd",
+    [SYS_msgrcv] "sys_msgrcv",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

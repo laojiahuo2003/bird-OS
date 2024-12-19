@@ -36,6 +36,9 @@
 #define SYS_sem_p 35         // 信号量：P操作，获取资源
 #define SYS_sem_v 36         // 信号量：V操作，释放资源
 #define SYS_symlink 37       // 创建软链接
-#define SYS_mkf 38        // 创建文件
+#define SYS_mkf 38           // 创建文件
 #define SYS_shmgetat 39      // 共享内存
 #define SYS_shmrefcount 40   // 共享内存
+#define SYS_mqget 41
+#define SYS_msgsnd 42
+#define SYS_msgrcv 43

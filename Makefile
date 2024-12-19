@@ -37,6 +37,7 @@ OBJS = \
   $K/interrupt/plic.o \
   $K/driver/virtio_disk.o \
   $K/sharemem.o \
+  $K/proc/messagequeue.o
 
 
 # riscv64-unknown-elf- or riscv64-linux-gnu-
@@ -165,6 +166,7 @@ UPROGS=\
 	$U/_writefile\
 	$U/_mkf\
 	$U/_sharemm\
+	$U/test/_msgtest\
 
 
 

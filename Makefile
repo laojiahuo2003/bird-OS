@@ -171,7 +171,9 @@ UPROGS=\
 	$U/program/_mkf\
 	$U/test/_sharemm\
 	$U/test/_alarmtest\
-	$U/test/_nettests
+	$U/test/_nettests\
+	$U/program/_chmod\
+	$U/test/_chmodtest
 
 
 

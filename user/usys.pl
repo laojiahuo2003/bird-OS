@@ -61,3 +61,4 @@ entry("connect");
 entry("mqget");
 entry("msgsnd");
 entry("msgrcv");
+entry("chmod");

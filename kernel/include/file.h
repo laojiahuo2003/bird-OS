@@ -31,7 +31,8 @@ struct inode
   struct sleeplock lock; // protects everything below here
   int valid;             // inode has been read from disk?
 
-  short type; // copy of disk inode
+  char type; // copy of disk inode
+  char mode;
   short major;
   short minor;
   short nlink;

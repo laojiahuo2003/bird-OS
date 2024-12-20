@@ -44,7 +44,7 @@ int sem_create(int);
 int sem_free(int);
 int sem_p(int);
 int sem_v(int);
-int mkf(char *, short, short, short);
+int mkf(char *);
 // 共享内存
 uint64 shmgetat(int, int);
 int shmrefcount(int);
@@ -52,6 +52,8 @@ int shmrefcount(int);
 int mqget(uint);               // 申请使用某个消息队列
 int msgsnd(uint, void *, int); // 发送消息
 int msgrcv(uint, void *, int); // 接收消息
+// 文件权限
+int chmod(const char*,char);
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);

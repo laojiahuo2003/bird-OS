@@ -62,7 +62,7 @@ int filewrite(struct file *, uint64, int n);
 void fsinit(int);
 int dirlink(struct inode *, char *, uint);
 struct inode *dirlookup(struct inode *, char *, uint *);
-struct inode *ialloc(uint, short);
+struct inode *ialloc(uint, char);
 struct inode *idup(struct inode *);
 void iinit();
 void ilock(struct inode *);

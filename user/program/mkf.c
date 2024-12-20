@@ -7,13 +7,13 @@
 int create_file(char *filename) {
     int fd;
 
-    // 调用 sys_create 创建文件，返回文件描述符
+    // 创建文件，返回文件描述符
     fd = open(filename, O_CREATE);
     if (fd < 0) {
         printf("create_file: failed to create file %s\n", filename);
         return -1;
     }
-    printf("File %s created successfully with fd %d.\n", filename, fd);
+    printf("File %s created successfully.\n", filename);
     return fd;
 }
 

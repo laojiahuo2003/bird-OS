@@ -248,7 +248,7 @@ bad:
 }
 
 
-static struct inode *create(char *path, short type, short major, short minor)
+static struct inode *create(char *path, char type, short major, short minor)
 {
   struct inode *ip, *dp;
   char name[DIRSIZ];
@@ -684,25 +684,22 @@ sys_symlink(void) {
 
 uint64 sys_mkf(void) {
     char path[MAXPATH];  // 用于存储文件路径
-    int type;          // 文件类型
-    int major;         // 设备的主设备号
-    int minor;         // 设备的从设备号
     struct inode *ip;    // 用于返回创建的 inode
-    // 获取系统调用参数：路径、类型、主设备号和从设备号
-    if (argstr(0, path, MAXPATH) < 0 ||  // 获取路径字符串
-        argint(1, &type) < 0 ||           // 获取文件类型
-        argint(2, &major) < 0 ||          // 获取主设备号
-        argint(3, &minor) < 0) {          // 获取从设备号
+    // 获取系统调用参数：路径
+    if (argstr(0, path, MAXPATH) < 0) {          
         return -1;  // 如果参数获取失败，返回错误
     }
     // 调用 create 函数创建文件
     begin_op();
-    ip = create(path, type, major, minor);
+    ip = create(path, T_FILE, 0, 0);
     
     // 如果文件创建失败，则返回错误
     if (ip == 0)
-        return -1;
-    // 如果创建成功，返回 inode 的编号作为文件描述符
+    {
+      end_op();
+      return -1;
+    }
+    // 如果创建成功，返回 inode 的编号
     end_op();
     return ip->inum;
 }
@@ -725,4 +722,26 @@ int sys_connect(void)
     return -1;
   }
   return fd;
+}
+int sys_chmod(void)
+{
+  char pathname[MAXPATH];
+  int mode;
+  struct inode*ip;
+  
+  if(argstr(0,pathname,MAXPATH)<0||argint(1,&mode)<0)
+    return -1;
+  begin_op();
+  if((ip=namei(pathname))==0)
+  {
+    end_op();
+    return -1;
+  }
+  
+  ilock(ip);
+  ip->mode=(char)mode;
+  iupdate(ip);
+  iunlock(ip);
+  end_op();
+  return 0;
 }

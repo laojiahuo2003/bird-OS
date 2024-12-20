@@ -25,6 +25,7 @@ int fetchaddr(uint64 addr, uint64 *ip)
 int fetchstr(uint64 addr, char *buf, int max)
 {
   struct proc *p = myproc();
+  
   int err = copyinstr(p->pagetable, buf, addr, max);
   if (err < 0)
     return err;
@@ -101,6 +102,7 @@ int argstr(int n, char *buf, int max)
   uint64 addr;
   if (argaddr(n, &addr) < 0)
     return -1;
+  
   return fetchstr(addr, buf, max);
 }
 
@@ -152,7 +154,7 @@ extern uint64 sys_shmrefcount(void);  // 共享内存
 extern uint64 sys_sigalarm(void);
 extern uint64 sys_sigreturn(void);
 extern uint64 sys_connect(void);
-
+extern uint64 sys_chmod(void);
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
     [SYS_exit] sys_exit,
@@ -200,6 +202,7 @@ static uint64 (*syscalls[])(void) = {
     [SYS_mqget] sys_mqget,
     [SYS_msgsnd] sys_msgsnd,
     [SYS_msgrcv] sys_msgrcv,
+    [SYS_chmod] sys_chmod,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -248,6 +251,7 @@ static char *syscall_names[] = {
     [SYS_mqget] "sys_mqget",
     [SYS_msgsnd] "sys_msgsnd",
     [SYS_msgrcv] "sys_msgrcv",
+    [SYS_chmod] "sys_chmod",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

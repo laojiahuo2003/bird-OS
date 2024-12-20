@@ -45,3 +45,4 @@
 #define SYS_mqget 44
 #define SYS_msgsnd 45
 #define SYS_msgrcv 46
+#define SYS_chmod 47        // 修改文件权限

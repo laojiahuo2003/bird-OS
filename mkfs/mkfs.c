@@ -43,7 +43,7 @@ void wsect(uint, void *);
 void winode(uint, struct dinode *);
 void rinode(uint inum, struct dinode *ip);
 void rsect(uint sec, void *buf);
-uint ialloc(ushort type);
+uint ialloc(char type);
 void iappend(uint inum, void *p, int n);
 
 // convert to intel byte order
@@ -255,7 +255,7 @@ void rsect(uint sec, void *buf)
 	}
 }
 
-uint ialloc(ushort type)
+uint ialloc(char type)
 {
 	uint inum = freeinode++;
 	struct dinode din;
@@ -264,6 +264,7 @@ uint ialloc(ushort type)
 	din.type = xshort(type);
 	din.nlink = xshort(1);
 	din.size = xint(0);
+	din.mode=3;
 	winode(inum, &din);
 	return inum;
 }

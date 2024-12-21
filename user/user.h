@@ -35,10 +35,13 @@ void *mmap(void *addr, int length, int prot, int flags, int fd, int offset);
 int munmap(void *addr, int length);
 int sh_var_read(void);
 void sh_var_write(int n);
-int symlink(char target[MAXPATH],char path[MAXPATH]);
+int symlink(const char*,const char*);
 int sigalarm(int ticks, void (*handler)());
 int sigreturn(void);
 int connect(uint32, uint16, uint16);
+//恢复被删除的文件
+int geti(const char*,uint64);
+int recoveri(uint,uint64);
 // 信号量
 int sem_create(int);
 int sem_free(int);

@@ -15,6 +15,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
+#include "buf.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -744,4 +745,50 @@ int sys_chmod(void)
   iunlock(ip);
   end_op();
   return 0;
+}
+int sys_geti()  //保存文件索引信息
+{
+  char pathname[MAXPATH];
+  uint64 addrsout;
+  uint addrsin[14];
+  struct inode*ip;
+  if(argstr(0,pathname,MAXPATH)<0||argaddr(1,&addrsout)<0) return -1;
+  begin_op();
+  if((ip=namei(pathname))==0)
+  {
+    end_op();
+    return -1;
+  }
+  ilock(ip);
+  for(int i=0;i<13;i++)
+    addrsin[i]=ip->addrs[i];
+  addrsin[13]=ip->size;
+  iunlock(ip);
+  end_op();
+   // 将内核中的 addrsin 写入到用户空间的 addrsout
+    if (copyout(myproc()->pagetable, addrsout, (char *)addrsin, sizeof(addrsin)) < 0) {
+        return -1; // 如果写入失败，返回错误
+    }
+  return 0;
+}
+
+int sys_recoveri() //根据文件索引信息恢复文件
+{
+    uint blockno;  // 用户传入的块号（可能是直接块、间接块或二级间接块）
+    uint64 bufout; // 用户缓冲区地址
+    char bufin[BSIZE]; // 缓冲区大小
+    struct buf *b;
+    // 获取用户传入的参数
+    if (argint(0, (int *)&blockno) < 0 || argaddr(1, &bufout) < 0) {
+        return -1;
+    }
+    b = bread(1, blockno); // 直接读取块
+    // 将块内容复制到用户缓冲区
+    memmove(bufin, b->data, BSIZE);
+    if (copyout(myproc()->pagetable, bufout, bufin, BSIZE) < 0) {
+        brelse(b);
+        return -1;
+    }
+    brelse(b);
+    return 0; // 成功
 }

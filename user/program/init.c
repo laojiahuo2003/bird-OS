@@ -25,7 +25,7 @@ int main(void)
 
   for (;;)
   {
-    printf("init: starting sh\n");
+    printf("\033[1;32minit: starting sh\033[0m\n");
     pid = fork();
     if (pid < 0)
     {

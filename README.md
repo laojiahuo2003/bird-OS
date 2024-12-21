@@ -8,7 +8,6 @@
 
 [mit-pdos/xv6-public: xv6 OS](https://github.com/mit-pdos/xv6-public)
 
-《操作操作系统原型——xv6分析与实验》罗秋明
 
 [介紹 | xv6 中文文档](https://th0ar.gitbooks.io/xv6-chinese/content/)
 
@@ -116,6 +115,8 @@ make clean
 buffer cache互斥锁的细粒度化
 
 文件访问控制权限
+
+对已删除文件的恢复策略
 
 - **网络设备**
 

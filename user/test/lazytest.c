@@ -13,6 +13,7 @@
 void sparse_memory(char *s)
 {
     char *i, *prev_end, *new_end;
+
     prev_end = sbrk(REGION_SZ);
     if (prev_end == (char *)0xffffffffffffffffL)
     {
@@ -32,6 +33,7 @@ void sparse_memory(char *s)
             exit(1);
         }
     }
+
     exit(0);
 }
 
@@ -47,8 +49,10 @@ void sparse_memory_unmap(char *s)
         exit(1);
     }
     new_end = prev_end + REGION_SZ;
+
     for (i = prev_end + PGSIZE; i < new_end; i += PGSIZE * PGSIZE)
         *(char **)i = i;
+
     for (i = prev_end + PGSIZE; i < new_end; i += PGSIZE * PGSIZE)
     {
         pid = fork();
@@ -74,6 +78,7 @@ void sparse_memory_unmap(char *s)
             }
         }
     }
+
     exit(0);
 }
 
@@ -100,6 +105,8 @@ void oom(char *s)
     }
 }
 
+// run each test in its own process. run returns 1 if child's exit()
+// indicates success.
 int run(void f(char *), char *s)
 {
     int pid;

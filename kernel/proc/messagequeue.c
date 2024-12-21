@@ -45,7 +45,7 @@ int findkey(int key)
 
 void mqinit()
 {
-    printf("Message queue initialization completed\n");
+    printf("mq消息队列初始化完成\n");
     initlock(&mqlock, "mqlock");
     for (int i = 0; i < MQMAX; ++i)
     {

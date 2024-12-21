@@ -593,6 +593,7 @@ void writebig(char *s)
     printf("%s: error: open big failed!\n", s);
     exit(1);
   }
+  printf("3\n");
   n = 0;
   for (;;)
   {
@@ -619,12 +620,14 @@ void writebig(char *s)
     }
     n++;
   }
+  printf("4\n");
   close(fd);
   if (unlink("big") < 0)
   {
     printf("%s: unlink big failed\n", s);
     exit(1);
   }
+  printf("5\n");
 }
 
 // many creates, followed by unlink test

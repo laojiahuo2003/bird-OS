@@ -155,8 +155,6 @@ extern uint64 sys_sigalarm(void);
 extern uint64 sys_sigreturn(void);
 extern uint64 sys_connect(void);
 extern uint64 sys_chmod(void);
-extern uint64 sys_geti(void);
-extern uint64 sys_recoveri(void);
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
     [SYS_exit] sys_exit,
@@ -205,8 +203,6 @@ static uint64 (*syscalls[])(void) = {
     [SYS_msgsnd] sys_msgsnd,
     [SYS_msgrcv] sys_msgrcv,
     [SYS_chmod] sys_chmod,
-    [SYS_geti] sys_geti,
-    [SYS_recoveri] sys_recoveri,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -256,8 +252,6 @@ static char *syscall_names[] = {
     [SYS_msgsnd] "sys_msgsnd",
     [SYS_msgrcv] "sys_msgrcv",
     [SYS_chmod] "sys_chmod",
-    [SYS_geti] "sys_geti",
-    [SYS_recoveri] "sys_recoveri",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

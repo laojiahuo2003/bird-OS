@@ -62,5 +62,3 @@ entry("mqget");
 entry("msgsnd");
 entry("msgrcv");
 entry("chmod");
-entry("geti");
-entry("recoveri")

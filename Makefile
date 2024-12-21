@@ -173,13 +173,16 @@ UPROGS=\
 	$U/test/_alarmtest\
 	$U/test/_nettests\
 	$U/program/_chmod\
-	$U/test/_chmodtest
+	$U/test/_chmodtest\
+	$U/program/_savei\
+	$U/program/_recoveri\
+	$U/test/_recoveritest
 
 
 
 UEXTRA = $(wildcard kernel/include/*.h)
-fs.img: mkfs/mkfs $(UEXTRA) $(UPROGS)
-	mkfs/mkfs fs.img $(UEXTRA) $(UPROGS)
+fs.img: mkfs/mkfs README.md $(UEXTRA) $(UPROGS)
+	mkfs/mkfs fs.img README.md $(UEXTRA) $(UPROGS)
 
 -include kernel/*.d user/*.d
 

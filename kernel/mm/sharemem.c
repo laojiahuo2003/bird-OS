@@ -24,7 +24,7 @@ void sharememinit()
     {
         shmtab[i].refcount = 0; // 引用数初始化
     }
-    // printf("shm 内存区初始化完成\n");
+     printf("Shared memory area initialization completed\n");
 }
 // 判断内存区是否已经启用
 int shmkeyused(uint64 key, uint64 mask)

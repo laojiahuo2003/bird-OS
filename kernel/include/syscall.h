@@ -48,3 +48,5 @@
 #define SYS_chmod 47        // 修改文件权限
 #define SYS_geti 48         // 保存文件的索引信息
 #define SYS_recoveri 49     // 根据文件的索引信息恢复文件
+#define SYS_clone 50        // 创建线程
+#define SYS_join 51         // 回收线程

@@ -108,7 +108,7 @@ $U/program/initcode: $U/program/initcode.S
 tags: $(OBJS) _init
 	etags *.S *.c
 
-ULIB = $U/program/ulib.o $U/usys.o $U/program/printf.o $U/program/umalloc.o
+ULIB = $U/program/ulib.o $U/usys.o $U/program/printf.o $U/program/umalloc.o $U/program/uthread.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -176,7 +176,8 @@ UPROGS=\
 	$U/test/_chmodtest\
 	$U/program/_savei\
 	$U/program/_recoveri\
-	$U/test/_recoveritest
+	$U/test/_recoveritest\
+	$U/program/_uthread
 
 
 
@@ -222,8 +223,8 @@ qemu-gdb: $K/kernel .gdbinit fs.img
 SERVERPORT = $(shell expr `id -u` % 5000 + 25099)
 
 server:
-	python3 server.py $(SERVERPORT)
+	python3 /user/test/server.py $(SERVERPORT)
 
 ping:
-	python3 ping.py $(FWDPORT)
+	python3 /user/test/ping.py $(FWDPORT)
 

@@ -136,7 +136,8 @@ int either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void procdump(void);
 int cps(void);
 void procnum(uint64 *dst);
-
+int clone(uint64 ,uint64 ,uint64 );
+int join(uint64);
 // swtch.S
 void swtch(struct context *, struct context *);
 

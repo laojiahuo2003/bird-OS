@@ -384,3 +384,19 @@ uint64 sys_sigalarm(void) {
 uint64 sys_sigreturn(void) {
 	return sigreturn();
 }
+int sys_clone(void)
+{
+  uint64 fcn;
+  uint64 arg;
+  uint64 stack;
+  argaddr(0,&fcn);
+  argaddr(1,&arg);
+  argaddr(2,&stack);
+  return clone(fcn,arg,stack);
+}
+int sys_join(void)
+{
+  uint64 stackaddr;
+  argaddr(0,&stackaddr);
+  return join(stackaddr);
+}

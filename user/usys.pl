@@ -63,4 +63,6 @@ entry("msgsnd");
 entry("msgrcv");
 entry("chmod");
 entry("geti");
-entry("recoveri")
+entry("recoveri");
+entry("clone");
+entry("join");

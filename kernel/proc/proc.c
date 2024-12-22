@@ -124,7 +124,6 @@ static struct proc *allocproc(void)
     }
   }
   return 0;
-
 found:
 
   p->pid = allocpid();
@@ -460,7 +459,11 @@ void exit(int status)
   // to a dead or wrong process; proc structs are never re-allocated
   // as anything else.
   acquire(&p->lock);
-  struct proc *original_parent = p->parent;
+  struct proc *original_parent=0;
+  if(p->parent==0&&p->pthread!=0)
+    original_parent=p->pthread;
+  else
+    original_parent=p->parent;
   release(&p->lock);
 
   // we need the parent's lock in order to wake it up from wait().
@@ -971,4 +974,83 @@ void procnum(uint64 *dst) // 获取进程数
     if (p->state != UNUSED)
       (*dst)++;
   }
+}
+int clone(uint64 fcn,uint64 arg,uint64 stack)
+{
+  struct proc*curproc=myproc();
+  struct proc*np=0;
+  
+  if((np=allocproc())==0) return -1;
+  np->pagetable=curproc->pagetable;
+  np->sz=curproc->sz;
+  np->pthread=curproc;
+  np->ustack=(void*)stack;
+  np->parent=0;
+  *np->trapframe=*curproc->trapframe;
+  void*stackin=kalloc();
+  
+  uint64 *sp=stackin+4096-16;
+  // 在内核栈中伪造现场，假装成返回地址是fcn、用户堆栈是线程栈
+  np->trapframe->epc = fcn;    // 设置程序计数器为函数地址
+  np->trapframe->sp = stack+4096-16;     // 设置堆栈指针
+  np->trapframe->s0 = stack+4096-16;     // 设置帧指针为栈顶指针
+  np->trapframe->a0 = 0;              // 设置返回值寄存器为 0
+  *(sp+1)=arg;
+  *sp=0xffffffffffffffff;
+  copyout(curproc->pagetable,stack,stackin,PGSIZE);
+  
+  for(int i=0;i<NOFILE;i++) // 复制文件描述符
+    if(curproc->ofile[i])
+      np->ofile[i]=filedup(curproc->ofile[i]);
+  np->cwd=idup(curproc->cwd);
+  
+  safestrcpy(np->name,curproc->name,sizeof(curproc->name));
+  release(&np->lock);
+  int pid=np->pid;
+  acquire(&np->lock);
+  np->state=RUNNABLE;
+  release(&np->lock);
+  return pid;
+}
+int join(uint64 stackaddrout)
+{
+  uint64 stackaddrin;
+  struct proc*curproc=myproc();
+  struct proc*p;
+  int havekids;
+  acquire(&curproc->lock);
+  for(;;)
+  {
+    havekids=0;
+    for(p=proc;p<&proc[NPROC];p++)
+    {
+      if(p->pthread==curproc)
+      {
+        acquire(&p->lock);
+        havekids=1;
+        if(p->state==ZOMBIE)
+        {
+          stackaddrin=(uint64)p->ustack;
+          int pid=p->pid;
+          //freeproc(p);
+          kfree((void*)p->kstack);
+          p->kstack=0;
+          p->state=UNUSED;
+          p->pid=0;
+          p->parent=0;
+          p->pthread=0;
+          p->name[0]=0;
+          p->killed=0;
+          copyout(p->pagetable,stackaddrout,(char*)&stackaddrin,8);
+          release(&p->lock);
+          release(&curproc->lock);
+          return pid;
+        }
+        release(&p->lock);
+      }
+    }
+    if(!havekids||curproc->killed) {release(&curproc->lock);return -1;}
+    sleep(curproc,&curproc->lock);
+  }
+  return 0;
 }

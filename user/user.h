@@ -57,6 +57,10 @@ int msgsnd(uint, void *, int); // 发送消息
 int msgrcv(uint, void *, int); // 接收消息
 // 文件权限
 int chmod(const char*,char);
+// 内核线程
+int clone(uint64,uint64,uint64);
+int join(uint64);
+
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);
@@ -73,3 +77,6 @@ void free(void *);
 int atoi(const char *);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
+// uthread.c
+int thread_join(void);
+int thread_create(void(*start_routine)(void*),void*arg);

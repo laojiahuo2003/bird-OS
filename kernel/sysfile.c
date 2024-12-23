@@ -792,3 +792,63 @@ int sys_recoveri() //根据文件索引信息恢复文件
     brelse(b);
     return 0; // 成功
 }
+
+/*
+uint64 sys_getcwd(void) {
+  uint64 addr;
+  
+  // 获取用户传入的地址参数，如果失败则返回-1
+  if (argaddr(0, &addr) < 0)
+    return -1;
+
+  struct dirent *de = myproc()->cwd; // 获取当前进程的当前工作目录
+  char path[FAT32_MAX_PATH];         // 用于存储路径的缓冲区
+  char *s = path + FAT32_MAX_PATH - 1;  // 指向路径的末尾
+  int len;
+  
+  // 初始化路径缓冲区
+  *s = '\0';
+  
+  // 处理根目录（没有父目录的情况）
+  if (de->parent == NULL) {
+    s = "/";
+  } else {
+    // 遍历父目录，构建路径
+    while (de->parent) {
+      len = strlen(de->name);
+      
+      // 检查是否有足够的空间来存储目录名和斜杠
+      s -= len;
+      if (s <= path) {
+        // 如果路径超出了缓冲区，返回-1，表示路径无法构造
+        return -1;
+      }
+
+      // 将当前目录名复制到缓冲区
+      strncpy(s, de->name, len);
+      s -= 1; // 为目录名添加斜杠
+      *s = '/';
+
+      de = de->parent; // 移动到父目录
+    }
+  }
+
+  // 检查是否提供了有效的地址，如果地址为0则分配内存
+  if (addr == 0) {
+    addr = (uint64)kalloc();
+    if (addr == 0) {
+      return -1; // 内存分配失败
+    }
+
+    mappages(myproc()->pagetable, addr, PGSIZE, addr, PTE_R | PTE_W);
+  }
+
+  // 将路径字符串从内核空间复制到用户空间
+  if (copyout2(addr, s, strlen(s) + 1) < 0) {
+    return -1; // 如果复制失败，返回-1
+  }
+
+  return addr; // 返回路径字符串的用户空间地址
+}
+
+*/

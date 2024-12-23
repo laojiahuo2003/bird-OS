@@ -501,3 +501,16 @@ void vmprint(pagetable_t pagetable)
   printf("page table %p\n", pagetable);
   vmprint_helper(pagetable, 1);
 }
+
+/*
+int
+copyout2(uint64 dstva, char *src, uint64 len)
+{
+  uint64 sz = myproc()->sz;
+  if (dstva + len > sz || dstva >= sz) {
+    return -1;
+  }
+  memmove((void *)dstva, src, len);
+  return 0;
+}
+*/

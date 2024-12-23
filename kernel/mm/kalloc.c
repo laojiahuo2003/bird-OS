@@ -17,12 +17,10 @@ struct ref_stru
   struct spinlock lock;
   int cnt[PHYSTOP / PGSIZE]; // 引用计数
 } ref;
-
 struct run
 {
   struct run *next;
 };
-
 struct
 {
   struct spinlock lock;

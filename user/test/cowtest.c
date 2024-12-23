@@ -13,39 +13,31 @@ void simpletest()
 {
   uint64 phys_size = PHYSTOP - KERNBASE;
   int sz = (phys_size / 3) * 2;
-
   printf("simple: ");
-
   char *p = sbrk(sz);
   if (p == (char *)0xffffffffffffffffL)
   {
     printf("sbrk(%d) failed\n", sz);
     exit(-1);
   }
-
   for (char *q = p; q < p + sz; q += 4096)
   {
     *(int *)q = getpid();
   }
-
   int pid = fork();
   if (pid < 0)
   {
     printf("fork() failed\n");
     exit(-1);
   }
-
   if (pid == 0)
     exit(0);
-
   wait(0);
-
   if (sbrk(-sz) == (char *)0xffffffffffffffffL)
   {
     printf("sbrk(-%d) failed\n", sz);
     exit(-1);
   }
-
   printf("ok\n");
 }
 
@@ -58,16 +50,13 @@ void threetest()
   uint64 phys_size = PHYSTOP - KERNBASE;
   int sz = phys_size / 4;
   int pid1, pid2;
-
   printf("three: ");
-
   char *p = sbrk(sz);
   if (p == (char *)0xffffffffffffffffL)
   {
     printf("sbrk(%d) failed\n", sz);
     exit(-1);
   }
-
   pid1 = fork();
   if (pid1 < 0)
   {
@@ -104,16 +93,12 @@ void threetest()
     }
     exit(0);
   }
-
   for (char *q = p; q < p + sz; q += 4096)
   {
     *(int *)q = getpid();
   }
-
   wait(0);
-
   sleep(1);
-
   for (char *q = p; q < p + sz; q += 4096)
   {
     if (*(int *)q != getpid())
@@ -122,13 +107,11 @@ void threetest()
       exit(-1);
     }
   }
-
   if (sbrk(-sz) == (char *)0xffffffffffffffffL)
   {
     printf("sbrk(-%d) failed\n", sz);
     exit(-1);
   }
-
   printf("ok\n");
 }
 

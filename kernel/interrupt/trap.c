@@ -81,12 +81,9 @@ void usertrap(void)
         p->killed = 1;
     }
     else if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && mmap_handler(r_stval(), cause) == 0)
-    { //  缺页异常(内存映射文件引起的)
-      // ok
-    }
+    {}//  缺页异常(内存映射文件引起的)
     else
-    { //  缺页异常(可能是懒分配引起的)
-      // printf("lazy!");
+    { //  缺页异常(懒分配引起的)
       char *pa; // 分配的物理地址
       if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && (pa = kalloc()) != 0)
       {

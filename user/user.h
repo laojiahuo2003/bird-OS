@@ -77,6 +77,8 @@ void free(void *);
 int atoi(const char *);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
+int statistics(void *buf, int sz);
 // uthread.c
 int thread_join(void);
 int thread_create(void(*start_routine)(void*),void*arg);
+

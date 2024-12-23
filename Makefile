@@ -108,7 +108,7 @@ $U/program/initcode: $U/program/initcode.S
 tags: $(OBJS) _init
 	etags *.S *.c
 
-ULIB = $U/program/ulib.o $U/usys.o $U/program/printf.o $U/program/umalloc.o $U/program/uthread.o
+ULIB = $U/program/ulib.o $U/usys.o $U/program/printf.o $U/program/umalloc.o $U/program/uthread.o $U/program/statistics.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -177,7 +177,9 @@ UPROGS=\
 	$U/program/_savei\
 	$U/program/_recoveri\
 	$U/test/_recoveritest\
-	$U/program/_uthread
+	$U/program/_uthread\
+	$U/test/_kalloctest\
+	$U/program/_statistics
 
 
 

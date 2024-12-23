@@ -130,8 +130,7 @@ void kvmmap(uint64 va, uint64 pa, uint64 sz, int perm) // 调用mappages，将�
 // a physical address. only needed for
 // addresses on the stack.
 // assumes va is page aligned.
-uint64
-kvmpa(uint64 va)
+uint64 kvmpa(uint64 va)
 {
   uint64 off = va % PGSIZE;
   pte_t *pte;

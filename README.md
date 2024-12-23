@@ -134,7 +134,7 @@ UDP/IP协议通信的支持
 
 [系统调用](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8.md)
 
-进程管理
+[进程管理](docs/document/进程管理.md)
 
 内存管理
 

@@ -140,7 +140,7 @@ UDP/IP协议通信的支持
 
 [进程管理](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86.md)
 
-[内存管理](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.md)
+[内存管理](/doc/document/内存管理.md)
 
 文件系统
 

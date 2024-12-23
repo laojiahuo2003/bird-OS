@@ -11,7 +11,7 @@
 
 [介紹 | xv6 中文文档](https://th0ar.gitbooks.io/xv6-chinese/content/)
 
-**开发过程：**已记录在项目根目录下的[开发日志](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97.md)中。
+**开发过程：** 已记录在项目根目录下的[开发日志](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97.md)中。
 
 ## 内核架构
 
@@ -82,7 +82,7 @@ make clean
 
 ### 运行效果
 
-<img src="https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/raw/master/docs/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE_2024-12-19_114254.png" style="zoom: 80%;" />
+<img src="https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/test/docs/img/BirdOS-init.png" style="zoom: 80%;" />
 
 ## 内核各模块设计综述
 
@@ -96,7 +96,9 @@ make clean
 
 共享内存的进程通信方式
 
-消息队列的进程通信方式 
+消息队列的进程通信方式
+
+基于中断的定时提醒机制
 
 用于进程同步与互斥的记录型信号量
 
@@ -136,9 +138,9 @@ UDP/IP协议通信的支持
 
 [系统调用](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8.md)
 
-进程管理
+[进程管理](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86.md)
 
-内存管理
+[内存管理](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.md)
 
 文件系统
 

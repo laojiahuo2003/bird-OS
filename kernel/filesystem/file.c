@@ -80,6 +80,9 @@ fileclose(struct file *f)
     iput(ff.ip);
     end_op();
   }
+  else if(ff.type == FD_SOCK){
+    sockclose(ff.sock);
+  }
 }
 
 // Get metadata about file f.
@@ -119,9 +122,16 @@ fileread(struct file *f, uint64 addr, int n)
     r = devsw[f->major].read(1, addr, n);
   } else if(f->type == FD_INODE){
     ilock(f->ip);
+    if((f->ip->mode&1)==0){//不可读
+      iunlock(f->ip);
+      printf("have no permission to read\n");
+      return -1;  // 表示读操作失败
+    }
     if((r = readi(f->ip, 1, addr, f->off, n)) > 0)
       f->off += r;
     iunlock(f->ip);
+  } else if(f->type == FD_SOCK){
+    r = sockread(f->sock, addr, n);
   } else {
     panic("fileread");
   }
@@ -158,9 +168,14 @@ filewrite(struct file *f, uint64 addr, int n)
       int n1 = n - i;
       if(n1 > max)
         n1 = max;
-
       begin_op();
       ilock(f->ip);
+      if((f->ip->mode&2)==0){ //判断是否可写
+        iunlock(f->ip);
+        end_op();
+        printf("have no permission to write\n");
+        return -1;    //写操作失败
+      }
       if ((r = writei(f->ip, 1, addr + i, f->off, n1)) > 0)
         f->off += r;
       iunlock(f->ip);
@@ -173,7 +188,10 @@ filewrite(struct file *f, uint64 addr, int n)
       i += r;
     }
     ret = (i == n ? n : -1);
-  } else {
+  } else if(f->type == FD_SOCK){
+    ret = sockwrite(f->sock, addr, n);
+  }
+  else {
     panic("filewrite");
   }
 

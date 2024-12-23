@@ -28,7 +28,11 @@ void kvminit()
 
   // virtio mmio disk interface
   kvmmap(VIRTIO0, VIRTIO0, PGSIZE, PTE_R | PTE_W);
+  // PCI-E ECAM (configuration space), for pci.c
+  kvmmap(0x30000000L, 0x30000000L, 0x10000000, PTE_R | PTE_W);
 
+  // pci.c maps the e1000's registers here.
+  kvmmap(0x40000000L, 0x40000000L, 0x20000, PTE_R | PTE_W);
   // CLINT
   kvmmap(CLINT, CLINT, 0x10000, PTE_R | PTE_W);
 
@@ -126,8 +130,7 @@ void kvmmap(uint64 va, uint64 pa, uint64 sz, int perm) // 调用mappages，将�
 // a physical address. only needed for
 // addresses on the stack.
 // assumes va is page aligned.
-uint64
-kvmpa(uint64 va)
+uint64 kvmpa(uint64 va)
 {
   uint64 off = va % PGSIZE;
   pte_t *pte;

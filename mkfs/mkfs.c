@@ -43,7 +43,7 @@ void wsect(uint, void *);
 void winode(uint, struct dinode *);
 void rinode(uint inum, struct dinode *ip);
 void rsect(uint sec, void *buf);
-uint ialloc(ushort type);
+uint ialloc(char type);
 void iappend(uint inum, void *p, int n);
 
 // convert to intel byte order
@@ -151,13 +151,18 @@ int main(int argc, char *argv[])
 	{
 		// 去除 "user/" 和 "kernel/include/"
 		char *shortname;
-		if (strncmp(argv[i], "user/", 5) == 0)
-			shortname = argv[i] + 5;
+		//printf("%s\n", argv[i]);
+		if (strncmp(argv[i], "user/test/", 10) == 0)
+			shortname = argv[i] + 10;
+		else if (strncmp(argv[i], "user/program/", 13) == 0)
+			shortname = argv[i] + 13;
 		else if (strncmp(argv[i], "kernel/include/", 15) == 0)
 			shortname = argv[i] + 15;
+		else if (strncmp(argv[i], "user/", 5) == 0)
+			shortname = argv[i] + 5;
 		else
 			shortname = argv[i];
-		printf("%s\n", shortname);
+		//printf("%s\n", shortname);
 		assert(index(shortname, '/') == 0);
 		if ((fd = open(argv[i], 0)) < 0)
 		{
@@ -250,7 +255,7 @@ void rsect(uint sec, void *buf)
 	}
 }
 
-uint ialloc(ushort type)
+uint ialloc(char type)
 {
 	uint inum = freeinode++;
 	struct dinode din;
@@ -259,6 +264,7 @@ uint ialloc(ushort type)
 	din.type = xshort(type);
 	din.nlink = xshort(1);
 	din.size = xint(0);
+	din.mode=3;
 	winode(inum, &din);
 	return inum;
 }

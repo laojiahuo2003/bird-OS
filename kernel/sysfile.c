@@ -15,6 +15,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "fcntl.h"
+#include "buf.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -248,7 +249,7 @@ bad:
 }
 
 
-static struct inode *create(char *path, short type, short major, short minor)
+static struct inode *create(char *path, char type, short major, short minor)
 {
   struct inode *ip, *dp;
   char name[DIRSIZ];
@@ -270,12 +271,11 @@ static struct inode *create(char *path, short type, short major, short minor)
   }
   if ((ip = ialloc(dp->dev, type)) == 0)
     panic("create: ialloc");
-  
   ilock(ip);
-  
   ip->major = major;
   ip->minor = minor;
   ip->nlink = 1;
+  ip->type=type;
   iupdate(ip);
 
   if (type == T_DIR)
@@ -663,10 +663,10 @@ sys_symlink(void) {
   if(argstr(0, target, MAXPATH) < 0 || argstr(1, path, MAXPATH) < 0) {
     return -1;
   }
-
   begin_op();
   // 分配一个inode结点，create返回锁定的inode
   ip_path = create(path, T_SYMLINK, 0, 0);
+  
   if(ip_path == 0) {
     end_op();
     return -1;
@@ -683,27 +683,172 @@ sys_symlink(void) {
   return 0;
 }
 
-uint64 sys_create(void) {
+uint64 sys_mkf(void) {
     char path[MAXPATH];  // 用于存储文件路径
-    int type;          // 文件类型
-    int major;         // 设备的主设备号
-    int minor;         // 设备的从设备号
     struct inode *ip;    // 用于返回创建的 inode
-    // 获取系统调用参数：路径、类型、主设备号和从设备号
-    if (argstr(0, path, MAXPATH) < 0 ||  // 获取路径字符串
-        argint(1, &type) < 0 ||           // 获取文件类型
-        argint(2, &major) < 0 ||          // 获取主设备号
-        argint(3, &minor) < 0) {          // 获取从设备号
+    // 获取系统调用参数：路径
+    if (argstr(0, path, MAXPATH) < 0) {          
         return -1;  // 如果参数获取失败，返回错误
     }
     // 调用 create 函数创建文件
     begin_op();
-    ip = create(path, type, major, minor);
+    ip = create(path, T_FILE, 0, 0);
     
     // 如果文件创建失败，则返回错误
     if (ip == 0)
-        return -1;
-    // 如果创建成功，返回 inode 的编号作为文件描述符
+    {
+      end_op();
+      return -1;
+    }
+    // 如果创建成功，返回 inode 的编号
     end_op();
     return ip->inum;
 }
+int sys_connect(void)
+{
+  struct file *f;
+  int fd;
+  uint32 raddr;
+  uint32 rport;
+  uint32 lport;
+  if (argint(0, (int*)&raddr) < 0 ||
+      argint(1, (int*)&lport) < 0 ||
+      argint(2, (int*)&rport) < 0) {
+    return -1;
+  }
+  if(sockalloc(&f, raddr, lport, rport) < 0)
+    return -1;
+  if((fd=fdalloc(f)) < 0){
+    fileclose(f);
+    return -1;
+  }
+  return fd;
+}
+int sys_chmod(void)
+{
+  char pathname[MAXPATH];
+  int mode;
+  struct inode*ip;
+  
+  if(argstr(0,pathname,MAXPATH)<0||argint(1,&mode)<0)
+    return -1;
+  begin_op();
+  if((ip=namei(pathname))==0)
+  {
+    end_op();
+    return -1;
+  }
+  
+  ilock(ip);
+  ip->mode=(char)mode;
+  iupdate(ip);
+  iunlock(ip);
+  end_op();
+  return 0;
+}
+int sys_geti()  //保存文件索引信息
+{
+  char pathname[MAXPATH];
+  uint64 addrsout;
+  uint addrsin[14];
+  struct inode*ip;
+  if(argstr(0,pathname,MAXPATH)<0||argaddr(1,&addrsout)<0) return -1;
+  begin_op();
+  if((ip=namei(pathname))==0)
+  {
+    end_op();
+    return -1;
+  }
+  ilock(ip);
+  for(int i=0;i<13;i++)
+    addrsin[i]=ip->addrs[i];
+  addrsin[13]=ip->size;
+  iunlock(ip);
+  end_op();
+   // 将内核中的 addrsin 写入到用户空间的 addrsout
+    if (copyout(myproc()->pagetable, addrsout, (char *)addrsin, sizeof(addrsin)) < 0) {
+        return -1; // 如果写入失败，返回错误
+    }
+  return 0;
+}
+
+int sys_recoveri() //根据文件索引信息恢复文件
+{
+    uint blockno;  // 用户传入的块号（可能是直接块、间接块或二级间接块）
+    uint64 bufout; // 用户缓冲区地址
+    char bufin[BSIZE]; // 缓冲区大小
+    struct buf *b;
+    // 获取用户传入的参数
+    if (argint(0, (int *)&blockno) < 0 || argaddr(1, &bufout) < 0) {
+        return -1;
+    }
+    b = bread(1, blockno); // 直接读取块
+    // 将块内容复制到用户缓冲区
+    memmove(bufin, b->data, BSIZE);
+    if (copyout(myproc()->pagetable, bufout, bufin, BSIZE) < 0) {
+        brelse(b);
+        return -1;
+    }
+    brelse(b);
+    return 0; // 成功
+}
+
+/*
+uint64 sys_getcwd(void) {
+  uint64 addr;
+  
+  // 获取用户传入的地址参数，如果失败则返回-1
+  if (argaddr(0, &addr) < 0)
+    return -1;
+
+  struct dirent *de = myproc()->cwd; // 获取当前进程的当前工作目录
+  char path[FAT32_MAX_PATH];         // 用于存储路径的缓冲区
+  char *s = path + FAT32_MAX_PATH - 1;  // 指向路径的末尾
+  int len;
+  
+  // 初始化路径缓冲区
+  *s = '\0';
+  
+  // 处理根目录（没有父目录的情况）
+  if (de->parent == NULL) {
+    s = "/";
+  } else {
+    // 遍历父目录，构建路径
+    while (de->parent) {
+      len = strlen(de->name);
+      
+      // 检查是否有足够的空间来存储目录名和斜杠
+      s -= len;
+      if (s <= path) {
+        // 如果路径超出了缓冲区，返回-1，表示路径无法构造
+        return -1;
+      }
+
+      // 将当前目录名复制到缓冲区
+      strncpy(s, de->name, len);
+      s -= 1; // 为目录名添加斜杠
+      *s = '/';
+
+      de = de->parent; // 移动到父目录
+    }
+  }
+
+  // 检查是否提供了有效的地址，如果地址为0则分配内存
+  if (addr == 0) {
+    addr = (uint64)kalloc();
+    if (addr == 0) {
+      return -1; // 内存分配失败
+    }
+
+    mappages(myproc()->pagetable, addr, PGSIZE, addr, PTE_R | PTE_W);
+  }
+
+  // 将路径字符串从内核空间复制到用户空间
+  if (copyout2(addr, s, strlen(s) + 1) < 0) {
+    return -1; // 如果复制失败，返回-1
+  }
+
+  return addr; // 返回路径字符串的用户空间地址
+}
+
+*/

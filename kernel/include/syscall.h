@@ -36,6 +36,17 @@
 #define SYS_sem_p 35         // 信号量：P操作，获取资源
 #define SYS_sem_v 36         // 信号量：V操作，释放资源
 #define SYS_symlink 37       // 创建软链接
-#define SYS_create 38        // 创建文件
+#define SYS_mkf 38           // 创建文件
 #define SYS_shmgetat 39      // 共享内存
 #define SYS_shmrefcount 40   // 共享内存
+#define SYS_sigalarm 41
+#define SYS_sigreturn 42
+#define SYS_connect 43
+#define SYS_mqget 44
+#define SYS_msgsnd 45
+#define SYS_msgrcv 46
+#define SYS_chmod 47        // 修改文件权限
+#define SYS_geti 48         // 保存文件的索引信息
+#define SYS_recoveri 49     // 根据文件的索引信息恢复文件
+#define SYS_clone 50        // 创建线程
+#define SYS_join 51         // 回收线程

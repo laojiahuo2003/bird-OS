@@ -25,6 +25,7 @@ int fetchaddr(uint64 addr, uint64 *ip)
 int fetchstr(uint64 addr, char *buf, int max)
 {
   struct proc *p = myproc();
+  
   int err = copyinstr(p->pagetable, buf, addr, max);
   if (err < 0)
     return err;
@@ -101,6 +102,7 @@ int argstr(int n, char *buf, int max)
   uint64 addr;
   if (argaddr(n, &addr) < 0)
     return -1;
+  
   return fetchstr(addr, buf, max);
 }
 
@@ -140,11 +142,23 @@ extern uint64 sys_sem_create(void);   // 信号量
 extern uint64 sys_sem_free(void);     // 信号量
 extern uint64 sys_sem_p(void);        // 信号量
 extern uint64 sys_sem_v(void);        // 信号量
-extern uint64 sys_symlink(void); 
-extern uint64 sys_create(void);
+extern uint64 sys_symlink(void);
+extern uint64 sys_mkf(void);
+extern uint64 sys_shmgetat(void);    // 共享内存
+extern uint64 sys_shmrefcount(void); // 共享内存
+extern uint64 sys_mqget(void);
+extern uint64 sys_msgsnd(void);
+extern uint64 sys_msgrcv(void);
 extern uint64 sys_shmgetat(void);     // 共享内存
 extern uint64 sys_shmrefcount(void);  // 共享内存
-
+extern uint64 sys_sigalarm(void);
+extern uint64 sys_sigreturn(void);
+extern uint64 sys_connect(void);
+extern uint64 sys_chmod(void);
+extern uint64 sys_geti(void);
+extern uint64 sys_recoveri(void);
+extern uint64 sys_clone(void);
+extern uint64 sys_join(void);
 static uint64 (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
     [SYS_exit] sys_exit,
@@ -183,9 +197,20 @@ static uint64 (*syscalls[])(void) = {
     [SYS_sem_p] sys_sem_p,
     [SYS_sem_v] sys_sem_v,
     [SYS_symlink] sys_symlink,
-    [SYS_create] sys_create,
+    [SYS_mkf] sys_mkf,
     [SYS_shmgetat] sys_shmgetat,
     [SYS_shmrefcount] sys_shmrefcount,
+    [SYS_sigalarm] sys_sigalarm,
+    [SYS_sigreturn] sys_sigreturn,
+    [SYS_connect] sys_connect,
+    [SYS_mqget] sys_mqget,
+    [SYS_msgsnd] sys_msgsnd,
+    [SYS_msgrcv] sys_msgrcv,
+    [SYS_chmod] sys_chmod,
+    [SYS_geti] sys_geti,
+    [SYS_recoveri] sys_recoveri,
+    [SYS_clone] sys_clone,
+    [SYS_join] sys_join,
 }; // 这些索引会从1开始，不是从0开始
 static char *syscall_names[] = {
     [SYS_fork] "fork",
@@ -225,9 +250,20 @@ static char *syscall_names[] = {
     [SYS_sem_p] "sys_sem_p",
     [SYS_sem_v] "sys_sem_v",
     [SYS_symlink] "sys_symlink",
-    [SYS_create] "sys_create",
+    [SYS_mkf] "sys_mkf",
     [SYS_shmgetat] "sys_shmgetat",
     [SYS_shmrefcount] "sys_shmrefcount",
+    [SYS_sigalarm] "sys_sigalarm",
+    [SYS_sigreturn] "sys_sigreturn",
+    [SYS_connect] "sys_connect",
+    [SYS_mqget] "sys_mqget",
+    [SYS_msgsnd] "sys_msgsnd",
+    [SYS_msgrcv] "sys_msgrcv",
+    [SYS_chmod] "sys_chmod",
+    [SYS_geti] "sys_geti",
+    [SYS_recoveri] "sys_recoveri",
+    [SYS_clone] "sys_clone",
+    [SYS_join] "sys_join",
 };
 void syscall(void) // 在usys.s中系统调用的参数放在a0与a1中，系统调用号放在a7
 {

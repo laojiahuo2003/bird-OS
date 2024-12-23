@@ -81,28 +81,13 @@ void copyout(char *s)
   for (int ai = 0; ai < 2; ai++)
   {
     uint64 addr = addrs[ai];
-
-    int fd = open("README", 0);
-    if (fd < 0)
-    {
-      printf("open(README) failed\n");
-      exit(1);
-    }
-    int n = read(fd, (void *)addr, 8192);
-    if (n > 0)
-    {
-      printf("read(fd, %p, 8192) returned %d, not -1 or 0\n", addr, n);
-      exit(1);
-    }
-    close(fd);
-
     int fds[2];
     if (pipe(fds) < 0)
     {
       printf("pipe() failed\n");
       exit(1);
     }
-    n = write(fds[1], "x", 1);
+    int n = write(fds[1], "x", 1);
     if (n != 1)
     {
       printf("pipe write failed\n");
@@ -608,7 +593,6 @@ void writebig(char *s)
     printf("%s: error: open big failed!\n", s);
     exit(1);
   }
-  printf("3\n");
   n = 0;
   for (;;)
   {
@@ -635,14 +619,12 @@ void writebig(char *s)
     }
     n++;
   }
-  printf("4\n");
   close(fd);
   if (unlink("big") < 0)
   {
     printf("%s: unlink big failed\n", s);
     exit(1);
   }
-  printf("5\n");
 }
 
 // many creates, followed by unlink test

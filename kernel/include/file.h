@@ -5,13 +5,15 @@ struct file
     FD_NONE,
     FD_PIPE,
     FD_INODE,
-    FD_DEVICE
+    FD_DEVICE,
+    FD_SOCK
   } type;
   int ref; // reference count
   char readable;
   char writable;
   struct pipe *pipe; // FD_PIPE
   struct inode *ip;  // FD_INODE and FD_DEVICE
+  struct sock *sock;
   uint off;          // FD_INODE
   short major;       // FD_DEVICE
 };
@@ -29,7 +31,8 @@ struct inode
   struct sleeplock lock; // protects everything below here
   int valid;             // inode has been read from disk?
 
-  short type; // copy of disk inode
+  char type; // copy of disk inode
+  char mode;
   short major;
   short minor;
   short nlink;

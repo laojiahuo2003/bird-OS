@@ -82,7 +82,7 @@ make clean
 
 ### 运行效果
 
-<img src="https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/test/docs/img/BirdOS-init.png" style="zoom: 80%;" />
+<img src="https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/raw/test/docs/img/BirdOS-init.png" style="zoom: 80%;" />
 
 ## 内核各模块设计综述
 

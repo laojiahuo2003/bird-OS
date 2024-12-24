@@ -852,3 +852,45 @@ uint64 sys_getcwd(void) {
 }
 
 */
+uint64
+sys_getcwd(void)
+{
+  uint64 addr;
+  if (argaddr(0, &addr) < 0)
+    return -1;
+
+  char *mp = "/";
+
+  if (copyout(myproc()->pagetable, addr, mp, strlen(mp) + 1) < 0)
+    return -1;
+  // printf("[sys_getcwd] cwd: %s, cwd_len: %d, addr: %p\n", mp, strlen(mp) + 1, addr);
+  return addr;
+}
+
+uint64 sys_dup_new(void) // 复制文件描述符到指定的新文件描述符的系统调用
+{
+    struct file *f; // 文件指针
+    int newfd; // 新的文件描述符
+
+    // 获取文件指针
+    if(argfd(0, 0, &f) < 0) {
+        return -1;
+    }
+
+    // 获取新文件描述符
+    if(argint(1, &newfd) < 0 || newfd < 0 || newfd >= NOFILE) {
+        return -1;
+    }
+
+    // 如果新文件描述符已占用，则先关闭它
+    if (myproc()->ofile[newfd] != ((void*)0)) {
+        fileclose(myproc()->ofile[newfd]);  // 关闭已占用的文件描述符
+    }
+
+    // 将新文件描述符指向文件指针
+    if ((newfd = fdalloc(f)) < 0)
+      return -1;
+    filedup(f);  // 增加文件指针的引用计数
+
+    return newfd; // 返回新的文件描述符
+}

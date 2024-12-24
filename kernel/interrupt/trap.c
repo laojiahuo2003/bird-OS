@@ -81,9 +81,10 @@ void usertrap(void)
         p->killed = 1;
     }
     else if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && mmap_handler(r_stval(), cause) == 0)
-    {}//  缺页异常(内存映射文件引起的)
+    {
+    } //  缺页异常(内存映射文件引起的)
     else
-    { //  缺页异常(懒分配引起的)
+    {           //  缺页异常(懒分配引起的)
       char *pa; // 分配的物理地址
       if (PGROUNDUP(p->trapframe->sp) - 1 < fault_va && fault_va < p->sz && (pa = kalloc()) != 0)
       {
@@ -121,10 +122,14 @@ void usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2) {
-    if(p->alarm_interval != 0) { // 如果设定了时钟事件
-      if(--p->alarm_ticks <= 0) { // 时钟倒计时 -1 tick，如果已经到达或超过设定的 tick 数
-        if(!p->alarm_goingoff) { // 确保没有时钟正在运行
+  if (which_dev == 2)
+  {
+    if (p->alarm_interval != 0)
+    { // 如果设定了时钟事件
+      if (--p->alarm_ticks <= 0)
+      { // 时钟倒计时 -1 tick，如果已经到达或超过设定的 tick 数
+        if (!p->alarm_goingoff)
+        { // 确保没有时钟正在运行
           p->alarm_ticks = p->alarm_interval;
           // jump to execute alarm_handler
           *p->alarm_trapframe = *p->trapframe; // backup trapframe
@@ -136,7 +141,6 @@ void usertrap(void)
     }
     yield();
   }
-
 
   usertrapret();
 }
@@ -253,7 +257,7 @@ void clockintr()
 int devintr()
 {
   uint64 scause = r_scause();
-  
+
   if ((scause & 0x8000000000000000L) &&
       (scause & 0xff) == 9)
   {
@@ -269,7 +273,8 @@ int devintr()
     {
       virtio_disk_intr();
     }
-    else if(irq == E1000_IRQ){
+    else if (irq == E1000_IRQ)
+    {
       e1000_intr();
     }
     else if (irq)
@@ -373,7 +378,8 @@ int mmap_handler(int va, int cause)
 
   return 0;
 }
-int sigalarm(int ticks, void(*handler)()) {
+int sigalarm(int ticks, void (*handler)())
+{
   // 设置 myproc 中的相关属性
   struct proc *p = myproc();
   p->alarm_interval = ticks;
@@ -382,7 +388,8 @@ int sigalarm(int ticks, void(*handler)()) {
   return 0;
 }
 
-int sigreturn() {
+int sigreturn()
+{
   // 将 trapframe 恢复到时钟中断之前的状态，恢复原本正在执行的程序流
   struct proc *p = myproc();
   *p->trapframe = *p->alarm_trapframe;

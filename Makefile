@@ -179,7 +179,9 @@ UPROGS=\
 	$U/test/_recoveritest\
 	$U/program/_uthread\
 	$U/test/_kalloctest\
-	$U/program/_statistics
+	$U/program/_statistics\
+	$U/test/_msgtest\
+
 
 
 

@@ -39,14 +39,16 @@
 #define SYS_mkf 38           // 创建文件
 #define SYS_shmgetat 39      // 共享内存
 #define SYS_shmrefcount 40   // 共享内存
-#define SYS_sigalarm 41
-#define SYS_sigreturn 42
-#define SYS_connect 43
-#define SYS_mqget 44
-#define SYS_msgsnd 45
-#define SYS_msgrcv 46
-#define SYS_chmod 47        // 修改文件权限
-#define SYS_geti 48         // 保存文件的索引信息
-#define SYS_recoveri 49     // 根据文件的索引信息恢复文件
-#define SYS_clone 50        // 创建线程
-#define SYS_join 51         // 回收线程
+#define SYS_getcwd 41
+#define SYS_dup_new 42
+#define SYS_sigalarm 43
+#define SYS_sigreturn 44
+#define SYS_connect 45
+#define SYS_mqget 46
+#define SYS_msgsnd 47
+#define SYS_msgrcv 48
+#define SYS_chmod 49       // 修改文件权限
+#define SYS_geti 50         // 保存文件的索引信息
+#define SYS_recoveri 51     // 根据文件的索引信息恢复文件
+#define SYS_clone 52        // 创建线程
+#define SYS_join 53         // 回收线程

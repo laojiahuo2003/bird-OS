@@ -10,7 +10,13 @@
 
 [介紹 | xv6 中文文档](https://th0ar.gitbooks.io/xv6-chinese/content/)
 
-**开发过程：** 已记录在项目根目录下的[开发日志](./开发日志.md)中。
+[riscv手册](http://riscvbook.com/chinese/RISC-V-Reader-Chinese-v2p1.pdf)
+
+**开发过程：** 记录在项目根目录下的[开发日志](./开发日志.md)中。
+
+**项目成员：** 楼金辉、顾芷玮、兰得爱
+
+**指导老师：** 周旭、赵伟华
 
 ------
 
@@ -18,9 +24,11 @@
 
 ## 内核架构
 
-BirdOS采用宏内核结构，分层式设计，底层是硬件，中间层列举了主要的OS服务与功能，顶层是用户接口。
+BirdOS采用宏内核结构，分层式设计，底层是硬件，顶层是用户接口，中间层列举了主要新增或改进的内核服务与功能。
 
-<img src="./docs/img/BirdOS架构.png" style="transform: scale(0.67);" />
+我们在用户空间也编写了相关用户程序 `/user/program` 与测试函数`/user/test` 。
+
+![image](./docs/img/BirdOS架构.png)
 
 ------
 

@@ -975,82 +975,100 @@ void procnum(uint64 *dst) // 获取进程数
       (*dst)++;
   }
 }
-int clone(uint64 fcn,uint64 arg,uint64 stack)
+int clone(uint64 fcn, uint64 arg, uint64 stack)
 {
-  struct proc*curproc=myproc();
-  struct proc*np=0;
-  
-  if((np=allocproc())==0) return -1;
-  np->pagetable=curproc->pagetable;
-  np->sz=curproc->sz;
-  np->pthread=curproc;
-  np->ustack=(void*)stack;
-  np->parent=0;
-  *np->trapframe=*curproc->trapframe;
-  void*stackin=kalloc();
-  
-  uint64 *sp=stackin+4096-16;
-  // 在内核栈中伪造现场，假装成返回地址是fcn、用户堆栈是线程栈
-  np->trapframe->epc = fcn;    // 设置程序计数器为函数地址
-  np->trapframe->sp = stack+4096-16;     // 设置堆栈指针
-  np->trapframe->s0 = stack+4096-16;     // 设置帧指针为栈顶指针
-  np->trapframe->a0 = 0;              // 设置返回值寄存器为 0
-  *(sp+1)=arg;
-  *sp=0xffffffffffffffff;
-  copyout(curproc->pagetable,stack,stackin,PGSIZE);
-  
-  for(int i=0;i<NOFILE;i++) // 复制文件描述符
-    if(curproc->ofile[i])
-      np->ofile[i]=filedup(curproc->ofile[i]);
-  np->cwd=idup(curproc->cwd);
-  
-  safestrcpy(np->name,curproc->name,sizeof(curproc->name));
+  struct proc *curproc = myproc();  // 获取当前进程的结构体指针
+  struct proc *np = 0;              // 创建新的进程指针
+  // 分配新的进程结构体，如果失败则返回-1
+  if ((np = allocproc()) == 0) return -1;
+  np->pagetable = curproc->pagetable;   // 子进程继承父进程的页表
+  np->sz = curproc->sz;                 // 子进程继承父进程的地址空间大小
+  np->pthread = curproc;                // 子进程关联到父进程，表示它是一个线程
+  np->ustack = (void *)stack;           // 设置子进程的用户堆栈地址
+  np->parent = 0;                       // 目前没有父进程（这里应该指向父进程，可能是逻辑问题）
+  // 复制父进程的 trapframe（陷阱帧），包含上下文信息（如寄存器值）
+  *np->trapframe = *curproc->trapframe;
+  // 为新的进程分配内核栈空间
+  void *stackin = kalloc();
+  // 设置栈指针（从栈顶开始，倒推16字节位置）
+  uint64 *sp = stackin + 4096 - 16;
+  // 在内核栈中伪造现场，假装子进程的返回地址是 fcn 函数，并将堆栈指针指向线程栈
+  np->trapframe->epc = fcn;             // 设置程序计数器为目标函数地址
+  np->trapframe->sp = stack + 4096 - 16; // 设置栈指针为线程栈的起始位置
+  np->trapframe->s0 = stack + 4096 - 16; // 设置帧指针为线程栈的起始位置
+  np->trapframe->a0 = 0;                // 设置返回值寄存器为 0
+  // 在内核栈中伪造函数参数
+  *(sp + 1) = arg;  // 将参数 `arg` 存入栈中
+  *sp = 0xffffffffffffffff;  // 设置一个伪造的返回地址，表示函数调用的结束
+  // 将内核栈的内容复制到用户栈中
+  copyout(curproc->pagetable, stack, stackin, PGSIZE);
+  // 复制文件描述符：子进程继承父进程的打开文件
+  for (int i = 0; i < NOFILE; i++) {
+    if (curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
+  }
+  // 复制父进程的当前工作目录
+  np->cwd = idup(curproc->cwd);
+  // 复制父进程的进程名
+  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+  // 释放新进程的锁
   release(&np->lock);
-  int pid=np->pid;
+  int pid = np->pid;  // 获取新进程的 PID
+  // 重新获取新进程的锁并将状态设置为 RUNNABLE，表示它可以被调度
   acquire(&np->lock);
-  np->state=RUNNABLE;
+  np->state = RUNNABLE;
+  // 释放进程锁
   release(&np->lock);
-  return pid;
+  return pid;  // 返回新进程的 PID
 }
+
 int join(uint64 stackaddrout)
 {
-  uint64 stackaddrin;
-  struct proc*curproc=myproc();
-  struct proc*p;
+  uint64 stackaddrin;  // 用于存储子进程的堆栈地址
+  struct proc *curproc = myproc();  // 获取当前进程
+  struct proc *p;
   int havekids;
-  acquire(&curproc->lock);
+  acquire(&curproc->lock);  // 获取当前进程的锁，防止其状态被修改
+  //循环等待子进程结束
   for(;;)
   {
-    havekids=0;
-    for(p=proc;p<&proc[NPROC];p++)
+    havekids = 0;  // 重置是否有子进程的标志
+    for(p = proc; p < &proc[NPROC]; p++)  // 遍历所有进程
     {
-      if(p->pthread==curproc)
+      if(p->pthread == curproc)  // 判断该进程是否为当前进程的子进程（线程）
       {
-        acquire(&p->lock);
-        havekids=1;
-        if(p->state==ZOMBIE)
+        acquire(&p->lock);  // 获取子进程的锁
+        havekids = 1;  // 当前进程有子进程
+        if(p->state == ZOMBIE)  // 如果子进程已经结束
         {
-          stackaddrin=(uint64)p->ustack;
-          int pid=p->pid;
-          //freeproc(p);
+          stackaddrin = (uint64)p->ustack;  // 获取子进程的堆栈地址
+          int pid = p->pid;  // 获取子进程的PID
+          // 释放子进程的内核栈
           kfree((void*)p->kstack);
-          p->kstack=0;
-          p->state=UNUSED;
-          p->pid=0;
-          p->parent=0;
-          p->pthread=0;
-          p->name[0]=0;
-          p->killed=0;
-          copyout(p->pagetable,stackaddrout,(char*)&stackaddrin,8);
-          release(&p->lock);
-          release(&curproc->lock);
-          return pid;
+          p->kstack = 0;
+          // 重置子进程的状态和相关字段
+          p->state = UNUSED;
+          p->pid = 0;
+          p->parent = 0;
+          p->pthread = 0;
+          p->name[0] = 0;
+          p->killed = 0;
+          // 将子进程的堆栈地址返回给父进程
+          copyout(p->pagetable, stackaddrout, (char*)&stackaddrin, 8);
+          release(&p->lock);  // 释放子进程的锁
+          release(&curproc->lock);  // 释放当前进程的锁
+          return pid;  // 返回子进程的PID，表示成功回收
         }
-        release(&p->lock);
+        release(&p->lock);  // 如果子进程不是ZOMBIE，释放子进程锁
       }
     }
-    if(!havekids||curproc->killed) {release(&curproc->lock);return -1;}
-    sleep(curproc,&curproc->lock);
+    // 如果没有子进程或者当前进程已被杀死，返回失败
+    if(!havekids || curproc->killed) {
+      release(&curproc->lock);
+      return -1;
+    }
+    // 如果有子进程但未结束，进入休眠
+    sleep(curproc, &curproc->lock);
   }
-  return 0;
+  return 0;  // 这是一个永远不会到达的地方
 }

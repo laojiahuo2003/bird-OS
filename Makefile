@@ -1,5 +1,3 @@
-
-
 K=kernel
 U=user
 
@@ -66,12 +64,6 @@ OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
 
 CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb
-
-ifdef LAB
-LABUPPER = $(shell echo $(LAB) | tr a-z A-Z)
-CFLAGS += -DSOL_$(LABUPPER)
-endif
-
 CFLAGS += -MD
 CFLAGS += -mcmodel=medany
 CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
@@ -79,7 +71,6 @@ CFLAGS += -I. -Ikernel/include
 # CFLAGS += -I.
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 CFLAGS += -DNET_TESTS_PORT=$(SERVERPORT)
-# Disable PIE when possible (for Ubuntu 16.10 toolchain)
 ifneq ($(shell $(CC) -dumpspecs 2>/dev/null | grep -e '[^f]no-pie'),)
 CFLAGS += -fno-pie -no-pie
 endif
@@ -226,4 +217,3 @@ server:
 
 ping:
 	python3 ./user/test/ping.py $(FWDPORT)
-

@@ -20,7 +20,7 @@
 
 BirdOS采用宏内核结构，分层式设计，底层是硬件，中间层列举了主要的OS服务与功能，顶层是用户接口。
 
-<img src="./docs/img/BirdOS架构.png" alt="BirdOS架构" style="transform: scale(0.5);" />
+<img src="./docs/img/BirdOS架构.png" alt="BirdOS架构" style="width="200" height="200" />
 
 ------
 
@@ -97,7 +97,7 @@ make clean
 
 ### 运行效果
 
-<img src="./docs/img/BirdOS-init.png" style=""transform: scale(0.67);"" />
+<img src="./docs/img/BirdOS-init.png" style="transform: scale(0.67);" />
 
 ------
 

@@ -26,7 +26,6 @@ int compare_files(const char *file1, const char *file2) {
         printf("Error: Could not open files for comparison.\n");
         return 0;
     }
-
     char buf1[512], buf2[512];
     int n1;
     while ((n1 = read(fd1, buf1, sizeof(buf1))) > 0) 
@@ -39,7 +38,6 @@ int compare_files(const char *file1, const char *file2) {
             return 0;
         }
     }
-
     close(fd1);
     close(fd2);
     return 1;
@@ -47,10 +45,8 @@ int compare_files(const char *file1, const char *file2) {
 
 int main() {
     printf("Starting recoveri test...\n");
-
     // Step 1: Create a test file
     create_test_file();
-
     // Step 2: Save the file's inode information
     if (fork() == 0) {
         char *args[] = {"savei", TEST_FILE, TEMP_FILE, 0};
@@ -58,7 +54,6 @@ int main() {
         exit(0);
     }
     wait(0);
-
     // Step 3: Recover the file using inode information
     if (fork() == 0) {
         char *args[] = {"recoveri", RECOVERED_FILE, TEMP_FILE, 0};
@@ -66,7 +61,6 @@ int main() {
         exit(0);
     }
     wait(0);
-
     // Step 4: Compare the original and recovered files
     if (compare_files(TEST_FILE, RECOVERED_FILE)) {
         printf("Test passed: Recovered file matches original.\n");

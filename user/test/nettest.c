@@ -11,7 +11,7 @@ static void
 ping(uint16 sport, uint16 dport, int attempts)
 {
   int fd;
-  char *obuf = "a message from BirdOS!";
+  char *obuf = "Hellow I'm BirdOS!";
   uint32 dst;
 
   // 10.0.2.2, which qemu remaps to the external host,

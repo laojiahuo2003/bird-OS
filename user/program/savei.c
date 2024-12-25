@@ -1,5 +1,4 @@
 #include "types.h"
-#include "stab.h"
 #include "user/user.h"
 #include "fcntl.h"
 int main(int argc,char* argv[])

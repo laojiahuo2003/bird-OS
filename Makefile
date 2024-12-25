@@ -164,14 +164,14 @@ UPROGS=\
 	$U/test/_sh_rw_nolock\
 	$U/test/_sh_rw_lock\
 	$U/test/_symlinktest\
-	$U/test/_bigfile\
+	$U/test/_bigfiletest\
 	$U/program/_symlink\
 	$U/program/_readfile\
 	$U/program/_writefile\
 	$U/program/_mkf\
 	$U/test/_sharemm\
 	$U/test/_alarmtest\
-	$U/test/_nettests\
+	$U/test/_nettest\
 	$U/program/_chmod\
 	$U/test/_chmodtest\
 	$U/program/_savei\
@@ -179,6 +179,7 @@ UPROGS=\
 	$U/test/_recoveritest\
 	$U/program/_uthread\
 	$U/test/_kalloctest\
+	$U/test/_bcachetest\
 	$U/program/_statistics
 
 
@@ -225,8 +226,8 @@ qemu-gdb: $K/kernel .gdbinit fs.img
 SERVERPORT = $(shell expr `id -u` % 5000 + 25099)
 
 server:
-	python3 /user/test/server.py $(SERVERPORT)
+	python3 ./user/test/server.py $(SERVERPORT)
 
 ping:
-	python3 /user/test/ping.py $(FWDPORT)
+	python3 ./user/test/ping.py $(FWDPORT)
 

@@ -754,14 +754,14 @@ int sys_geti()  //保存文件索引信息
   struct inode*ip;
   if(argstr(0,pathname,MAXPATH)<0||argaddr(1,&addrsout)<0) return -1;
   begin_op();
-  if((ip=namei(pathname))==0)
+  if((ip=namei(pathname))==0)	// 得不到对应索引节点
   {
     end_op();
     return -1;
   }
-  ilock(ip);
+  ilock(ip);	// 同步inode和dinode
   for(int i=0;i<13;i++)
-    addrsin[i]=ip->addrs[i];
+    addrsin[i]=ip->addrs[i];	// 复制索引
   addrsin[13]=ip->size;
   iunlock(ip);
   end_op();

@@ -1097,49 +1097,6 @@ void reparent2(char *s)
   exit(0);
 }
 
-// allocate all mem, free it, and allocate again
-void mem(char *s)
-{
-  void *m1, *m2;
-  int pid;
-
-  if ((pid = fork()) == 0)
-  {
-    m1 = 0;
-    while ((m2 = malloc(10001)) != 0)
-    {
-      *(char **)m2 = m1;
-      m1 = m2;
-    }
-    while (m1)
-    {
-      m2 = *(char **)m1;
-      free(m1);
-      m1 = m2;
-    }
-    m1 = malloc(1024 * 20);
-    if (m1 == 0)
-    {
-      printf("couldn't allocate mem?!!\n", s);
-      exit(1);
-    }
-    free(m1);
-    exit(0);
-  }
-  else
-  {
-    int xstatus;
-    wait(&xstatus);
-    if (xstatus == -1)
-    {
-      // probably page fault, so might be lazy lab,
-      // so OK.
-      exit(0);
-    }
-    exit(xstatus);
-  }
-}
-
 // More file system tests
 
 // two processes write to the same file descriptor
@@ -2273,80 +2230,6 @@ void forktest(char *s)
   }
 }
 
-void sbrkbasic(char *s)
-{
-  enum
-  {
-    TOOMUCH = 1024 * 1024 * 1024
-  };
-  int i, pid, xstatus;
-  char *c, *a, *b;
-
-  // does sbrk() return the expected failure value?
-  pid = fork();
-  if (pid < 0)
-  {
-    printf("fork failed in sbrkbasic\n");
-    exit(1);
-  }
-  if (pid == 0)
-  {
-    a = sbrk(TOOMUCH);
-    if (a == (char *)0xffffffffffffffffL)
-    {
-      // it's OK if this fails.
-      exit(0);
-    }
-
-    for (b = a; b < a + TOOMUCH; b += 4096)
-    {
-      *b = 99;
-    }
-
-    // we should not get here! either sbrk(TOOMUCH)
-    // should have failed, or (with lazy allocation)
-    // a pagefault should have killed this process.
-    exit(1);
-  }
-
-  wait(&xstatus);
-  if (xstatus == 1)
-  {
-    printf("%s: too much memory allocated!\n", s);
-    exit(1);
-  }
-
-  // can one sbrk() less than a page?
-  a = sbrk(0);
-  for (i = 0; i < 5000; i++)
-  {
-    b = sbrk(1);
-    if (b != a)
-    {
-      printf("%s: sbrk test failed %d %x %x\n", i, a, b);
-      exit(1);
-    }
-    *b = 1;
-    a = b + 1;
-  }
-  pid = fork();
-  if (pid < 0)
-  {
-    printf("%s: sbrk test fork failed\n", s);
-    exit(1);
-  }
-  c = sbrk(1);
-  c = sbrk(1);
-  if (c != a + 1)
-  {
-    printf("%s: sbrk test failed post-fork\n", s);
-    exit(1);
-  }
-  if (pid == 0)
-    exit(0);
-  wait(&xstatus);
-  exit(xstatus);
-}
 
 void sbrkmuch(char *s)
 {
@@ -2414,110 +2297,6 @@ void sbrkmuch(char *s)
     printf("%s: sbrk downsize failed, a %x c %x\n", a, c);
     exit(1);
   }
-}
-
-// can we read the kernel's memory?
-// void
-// kernmem(char *s)
-// {
-//   char *a;
-//   int pid;
-
-//   for(a = (char*)(KERNBASE); a < (char*) (KERNBASE+2000000); a += 50000){
-//     pid = fork();
-//     if(pid < 0){
-//       printf("%s: fork failed\n", s);
-//       exit(1);
-//     }
-//     if(pid == 0){
-//       printf("%s: oops could read %x = %x\n", a, *a);
-//       exit(1);
-//     }
-//     int xstatus;
-//     wait(&xstatus);
-//     if(xstatus != -1)  // did kernel kill child?
-//       exit(1);
-//   }
-// }
-
-// if we run the system out of memory, does it clean up the last
-// failed allocation?
-void sbrkfail(char *s)
-{
-  enum
-  {
-    BIG = 100 * 1024 * 1024
-  };
-  int i, xstatus;
-  int fds[2];
-  char scratch;
-  char *c, *a;
-  int pids[10];
-  int pid;
-
-  if (pipe(fds) != 0)
-  {
-    printf("%s: pipe() failed\n", s);
-    exit(1);
-  }
-  for (i = 0; i < sizeof(pids) / sizeof(pids[0]); i++)
-  {
-    if ((pids[i] = fork()) == 0)
-    {
-      // allocate a lot of memory
-      sbrk(BIG - (uint64)sbrk(0));
-      write(fds[1], "x", 1);
-      // sit around until killed
-      for (;;)
-        sleep(1000);
-    }
-    if (pids[i] != -1)
-      read(fds[0], &scratch, 1);
-  }
-
-  // if those failed allocations freed up the pages they did allocate,
-  // we'll be able to allocate here
-  c = sbrk(PGSIZE);
-  for (i = 0; i < sizeof(pids) / sizeof(pids[0]); i++)
-  {
-    if (pids[i] == -1)
-      continue;
-    kill(pids[i]);
-    wait(0);
-  }
-  if (c == (char *)0xffffffffffffffffL)
-  {
-    printf("%s: failed sbrk leaked memory\n", s);
-    exit(1);
-  }
-
-  // test running fork with the above allocated page
-  pid = fork();
-  if (pid < 0)
-  {
-    printf("%s: fork failed\n", s);
-    exit(1);
-  }
-  if (pid == 0)
-  {
-    // allocate a lot of memory.
-    // this should produce a page fault,
-    // and thus not complete.
-    a = sbrk(0);
-    sbrk(10 * BIG);
-    int n = 0;
-    for (i = 0; i < 10 * BIG; i += PGSIZE)
-    {
-      n += *(a + i);
-    }
-    // print n so the compiler doesn't optimize away
-    // the for loop.
-    printf("%s: allocate a lot of memory succeeded %d\n", n);
-    exit(1);
-  }
-  wait(&xstatus);
-  if (xstatus != -1 && xstatus != 2)
-    exit(1);
 }
 
 // test reads/writes from/to allocated memory
@@ -2804,45 +2583,6 @@ void sbrkbugs(char *s)
   exit(0);
 }
 
-// regression test. does write() with an invalid buffer pointer cause
-// a block to be allocated for a file that is then not freed when the
-// file is deleted? if the kernel has this bug, it will panic: balloc:
-// out of blocks. assumed_free may need to be raised to be more than
-// the number of free blocks. this test takes a long time.
-void badwrite(char *s)
-{
-  int assumed_free = 600;
-
-  unlink("junk");
-  for (int i = 0; i < assumed_free; i++)
-  {
-    int fd = open("junk", O_CREATE | O_WRONLY);
-    if (fd < 0)
-    {
-      printf("open junk failed\n");
-      exit(1);
-    }
-    write(fd, (char *)0xffffffffffL, 1);
-    close(fd);
-    unlink("junk");
-  }
-
-  int fd = open("junk", O_CREATE | O_WRONLY);
-  if (fd < 0)
-  {
-    printf("open junk failed\n");
-    exit(1);
-  }
-  if (write(fd, "x", 1) != 1)
-  {
-    printf("write failed\n");
-    exit(1);
-  }
-  close(fd);
-  unlink("junk");
-
-  exit(0);
-}
 
 // regression test. test whether exec() leaks memory if one of the
 // arguments is invalid. the test passes if the kernel doesn't panic.
@@ -2859,48 +2599,6 @@ void badarg(char *s)
   exit(0);
 }
 
-// test the exec() code that cleans up if it runs out
-// of memory. it's really a test that such a condition
-// doesn't cause a panic.
-void execout(char *s)
-{
-  for (int avail = 0; avail < 15; avail++)
-  {
-    int pid = fork();
-    if (pid < 0)
-    {
-      printf("fork failed\n");
-      exit(1);
-    }
-    else if (pid == 0)
-    {
-      // allocate all of memory.
-      while (1)
-      {
-        uint64 a = (uint64)sbrk(4096);
-        if (a == 0xffffffffffffffffLL)
-          break;
-        *(char *)(a + 4096 - 1) = 1;
-      }
-
-      // free a few pages, in order to let exec() make some
-      // progress.
-      for (int i = 0; i < avail; i++)
-        sbrk(-4096);
-
-      close(1);
-      char *args[] = {"echo", "x", 0};
-      exec("echo", args);
-      exit(0);
-    }
-    else
-    {
-      wait((int *)0);
-    }
-  }
-
-  exit(0);
-}
 
 //
 // use sbrk() to count how many free physical memory pages there are.
@@ -3033,7 +2731,6 @@ int main(int argc, char *argv[])
     void (*f)(char *);
     char *s;
   } tests[] = {
-      // {execout, "execout"},
       {copyin, "copyin"},
       {copyout, "copyout"},
       {copyinstr1, "copyinstr1"},
@@ -3045,7 +2742,6 @@ int main(int argc, char *argv[])
       {reparent2, "reparent2"},
       {pgbug, "pgbug"},
       {sbrkbugs, "sbrkbugs"},
-      // {badwrite, "badwrite" },
       {badarg, "badarg"},
       {reparent, "reparent"},
       {twochildren, "twochildren"},
@@ -3064,10 +2760,7 @@ int main(int argc, char *argv[])
       {bigargtest, "bigargtest"},
       {bigwrite, "bigwrite"},
       {bsstest, "bsstest"},
-      //{sbrkbasic, "sbrkbasic"},
       {sbrkmuch, "sbrkmuch"},
-      // {kernmem, "kernmem"},
-      //{sbrkfail, "sbrkfail"},
       {sbrkarg, "sbrkarg"},
       {validatetest, "validatetest"},
       {stacktest, "stacktest"},
@@ -3078,7 +2771,6 @@ int main(int argc, char *argv[])
       {openiputtest, "openiput"},
       {exitiputtest, "exitiput"},
       {iputtest, "iput"},
-      //{mem, "mem"},
       {pipe1, "pipe1"},
       {preempt, "preempt"},
       {exitwait, "exitwait"},
@@ -3113,18 +2805,9 @@ int main(int argc, char *argv[])
         if (continuous != 2)
           exit(1);
       }
-      // int free1 = countfree();
-      // if(free1 < free0){
-      // printf("FAILED -- lost %d free pages\n", free0 - free1);
-      // if(continuous != 2)
-      // exit(1);
-      //}
     }
   }
-
   printf("usertests starting\n");
-  // int free0 = countfree();
-  // int free1 = 0;
   int fail = 0;
   for (struct test *t = tests; t->s != 0; t++)
   {
@@ -3134,14 +2817,10 @@ int main(int argc, char *argv[])
         fail = 1;
     }
   }
-
   if (fail)
   {
     printf("SOME TESTS FAILED\n");
     exit(1);
-    // } else if((free1 = countfree()) < free0){
-    //   printf("FAILED -- lost some free pages %d (out of %d)\n", free1, free0);
-    //   exit(1);
   }
   else
   {

@@ -39,12 +39,12 @@ struct superblock
 struct dinode
 {
   char mode;                // 文件权限
-  char type;              // File type
-  short major;             // Major device number (T_DEVICE only)
-  short minor;             // Minor device number (T_DEVICE only)
-  short nlink;             // Number of links to inode in file system
-  uint size;               // Size of file (bytes)
-  uint addrs[NDIRECT + 2];   // Data block addresses
+  char type;              // 文件类型
+  short major;             // 主设备号
+  short minor;             // 从设备号
+  short nlink;             // 引用计数
+  uint size;               // 文件大小
+  uint addrs[NDIRECT + 2];   // 数据块地址
 };
 
 // Inodes per block.

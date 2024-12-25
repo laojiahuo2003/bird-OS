@@ -2,20 +2,27 @@
 
 ## **项目简介**
 
-本项目是一个基于xv6-RISCV实现的小型内核操作系统，旨在开发过程中对xv6的各个模块进行改进和优化。在原有基础上，我们分别在进程调度、内存管理、文件管理几个方面完善了功能。截至目前一共XX个系统调用，为用户提供了更丰富 的系统服务。
+本项目是一个基于xv6-RISCV实现的小型内核操作系统，旨在开发过程中对xv6的各个模块进行改进和优化。在原有基础上，我们分别在进程调度、内存管理、文件管理几个方面完善了功能。截至目前一共51个系统调用，为用户提供了更丰富的系统服务。
 
 **参考项目与书籍：**
 
-[mit-pdos/xv6-public: xv6 OS](https://github.com/mit-pdos/xv6-public)
-
+[mit-pdos/xv6-public: xv6 OS](https://github.com/mit-pdos/xv6-public)(参考大部分模块的实现)
 
 [介紹 | xv6 中文文档](https://th0ar.gitbooks.io/xv6-chinese/content/)
 
-**开发过程：** 已记录在项目根目录下的[开发日志](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/%E5%BC%80%E5%8F%91%E6%97%A5%E5%BF%97.md)中。
+**开发过程：** 已记录在项目根目录下的[开发日志](./开发日志.md)中。
+
+------
+
+
 
 ## 内核架构
 
+BirdOS采用宏内核结构，分层式设计，底层是硬件，中间层列举了主要的OS服务与功能，顶层是用户接口。
 
+<img src=".\docs\img\BirdOS架构.png" alt="BirdOS架构" style="zoom: 67%;" />
+
+------
 
 
 
@@ -27,12 +34,12 @@
 ├── README.md
 ├── docs			# 说明文档
 ├── kernel			# 内核代码
-│   ├── asm			# 汇编
+│   ├── asm			# 汇编相关
 │   ├── driver		# 磁盘驱动以及uart驱动
 │   ├── filesystem	# 文件系统
 │   ├── include		# 内核头文件
 │   ├── interrupt	# 中断
-│   ├── kernel.ld	# 内核链接
+│   ├── kernel.ld	# 链接脚本
 │   ├── lib			# 库函数相关
 │   ├── lock		# 锁
 │   ├── main.c		# 主函数
@@ -44,13 +51,15 @@
 │   ├── sysfile.c	# 文件相关系统调用
 │   ├── sysnet.c	# 网络相关系统调用
 │   └── sysproc.c	# 进程相关系统调用
-├── mkfs			# 磁盘分区初始化
+├── mkfs			# 文件系统初始化
 └── user
     ├── program		# 用户命令与程序
     ├── test		# 测试用例
-    ├── user.h		# 用户头文件
-    └── usys.pl		# 用户调用系统调用
+    ├── user.h		# 用户函数库
+    └── usys.pl		# 脚本文件
 ```
+
+------
 
 
 
@@ -62,7 +71,9 @@ Ubuntu 20.04
 
 qemu-5.1.0
 
-RISC-V GNU 编译器工具链
+RISC-V GNU 编译工具链
+
+------
 
 
 
@@ -80,15 +91,23 @@ make qemu
 make clean
 ```
 
+------
+
+
+
 ### 运行效果
 
-<img src="https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/raw/test/docs/img/BirdOS-init.png" style="zoom: 80%;" />
+<img src=".\docs\img\BirdOS-init.png" style="zoom: 80%;" />
+
+------
+
+
 
 ## 内核各模块设计综述
 
-在xv6原有基础上，我们针对内核各模块进行了相关改进与创新（详细文档在最后），添加如下功能：
+在xv6原有基础上，我们针对内核各模块进行了相关改进与创新，添加如下功能：
 
-- **系统调用：** 用于支持相应功能以及提供用户接口，共XX个（xv6自带21个）
+- **系统调用：** 用于支持相应功能以及提供用户接口，共51个（xv6自带21个）
 
 - **进程管理**
 
@@ -128,21 +147,24 @@ buffer cache互斥锁的细粒度化
 
 e1000网卡驱动程序
 
-UDP/IP协议通信的支持
+UDP/IP协议通信的简单支持
 
 - **系统测试：** 我们在本项目/user/test下添加了对各功能的相关测试
+
+------
+
+
 
 ## 文档
 
 模块的设计文档如下：
 
-[系统调用](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8.md)
+[系统调用](.\docs\document\系统调用.md)
 
-[进程管理](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86.md)
+[进程管理](.\docs\document\进程管理.md)
 
-[内存管理](https://gitlab.eduxiji.net/T202410336994266/project2608132-272904/-/blob/master/docs/document/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86.md)
+[内存管理](.\docs\document\内存管理.md)
 
-文件系统
+[文件系统](.\docs\document\文件系统.md)
 
-网络设备
-
+[网络设备](.\docs\document\网络设备.md)

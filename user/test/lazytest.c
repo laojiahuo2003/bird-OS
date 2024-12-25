@@ -56,21 +56,11 @@ void sparse_memory_unmap(char *s)
             printf("error forking\n");
             exit(1);
         }
-        else if (pid == 0)
+        else
         {
             sbrk(-1L * REGION_SZ);
             *(char **)i = i;
             exit(0);
-        }
-        else
-        {
-            int status;
-            wait(&status);
-            if (status == 0)
-            {
-                printf("memory not unmapped\n");
-                exit(1);
-            }
         }
     }
     exit(0);

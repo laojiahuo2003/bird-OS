@@ -1,9 +1,4 @@
 
-# To compile and run with a lab solution, set the lab name in lab.mk
-# (e.g., LB=util).  Run make grade to test solution with the lab's
-# grade script (e.g., grade-lab-util).
-
-# -include conf/lab.mk
 
 K=kernel
 U=user
@@ -172,6 +167,7 @@ UPROGS=\
 	$U/test/_sharemm\
 	$U/test/_alarmtest\
 	$U/test/_nettest\
+	$U/test/_msgtest\
 	$U/program/_chmod\
 	$U/test/_chmodtest\
 	$U/program/_savei\

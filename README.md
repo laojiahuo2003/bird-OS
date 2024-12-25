@@ -20,7 +20,7 @@
 
 BirdOS采用宏内核结构，分层式设计，底层是硬件，中间层列举了主要的OS服务与功能，顶层是用户接口。
 
-<img src=".\docs\img\BirdOS架构.png" alt="BirdOS架构" style="zoom: 67%;" />
+<img src="./docs/img/BirdOS架构.png" alt="BirdOS架构" style="zoom: 67%;" />
 
 ------
 
@@ -97,7 +97,7 @@ make clean
 
 ### 运行效果
 
-<img src=".\docs\img\BirdOS-init.png" style="zoom: 80%;" />
+<img src="./docs/img/BirdOS-init.png" style="zoom: 80%;" />
 
 ------
 
@@ -159,12 +159,12 @@ UDP/IP协议通信的简单支持
 
 模块的设计文档如下：
 
-[系统调用](.\docs\document\系统调用.md)
+[系统调用](./docs/document/系统调用.md)
 
-[进程管理](.\docs\document\进程管理.md)
+[进程管理](./docs/document/进程管理.md)
 
-[内存管理](.\docs\document\内存管理.md)
+[内存管理](./docs/document/内存管理.md)
 
-[文件系统](.\docs\document\文件系统.md)
+[文件系统](./docs/document/文件系统.md)
 
-[网络设备](.\docs\document\网络设备.md)
+[网络设备](./docs/document/网络设备.md)

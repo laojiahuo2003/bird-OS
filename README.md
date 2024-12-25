@@ -6,7 +6,7 @@
 
 **参考项目与书籍：**
 
-[mit-pdos/xv6-public: xv6 OS](https://github.com/mit-pdos/xv6-public)(参考大部分模块的实现)
+[mit-pdos/xv6-public: xv6 OS](https://github.com/mit-pdos/xv6-public)
 
 [介紹 | xv6 中文文档](https://th0ar.gitbooks.io/xv6-chinese/content/)
 

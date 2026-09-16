@@ -132,6 +132,10 @@ struct proc
   int wait_time;            // 等待CPU的时间
   int cpu_time;             // CPU上运行的时间
   int dyn_priority;         // 动态优先级
+  // O(1) 调度器：多级就绪队列链表节点（由 runq_lock 保护）
+  struct proc *run_next;    // 就绪队列后继
+  struct proc *run_prev;    // 就绪队列前驱
+  int on_runq;              // 是否已在就绪队列中
   struct proc *pthread;     // 父线程
   void *ustack;             // 用户线程栈
   uint shm;        // 本进程共享内存区域的下边界

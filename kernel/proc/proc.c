@@ -31,6 +31,18 @@ int setPriority(int pid, int priority)
     {
       acquire(&p->lock); // 获取进程的锁
       p->priority = priority;
+      // 若进程在就绪队列中，按新优先级重新分桶
+      acquire(&runq_lock);
+      if (p->on_runq)
+      {
+        runq_remove(p);
+        runq_enqueue(p);
+      }
+      else
+      {
+        p->dyn_priority = runq_dyn(p);
+      }
+      release(&runq_lock);
       release(&p->lock); // 修改完成后释放锁
       return 0;
     }
@@ -45,6 +57,7 @@ void procinit(void)
   struct proc *p;
 
   initlock(&pid_lock, "nextpid");
+  runq_init(); // 初始化 O(1) 多级就绪队列
   for (p = proc; p < &proc[NPROC]; p++)
   {
     initlock(&p->lock, "proc");
@@ -195,6 +208,11 @@ static void freeproc(struct proc *p)
   p->alarm_handler = 0;
   p->alarm_ticks = 0;
   p->alarm_goingoff = 0;
+  // 防御性操作：若进程意外还在就绪队列中，先摘除
+  acquire(&runq_lock);
+  if (p->on_runq)
+    runq_remove(p);
+  release(&runq_lock);
   p->state = UNUSED;
   // 释放进程
   shmrelease(p->pagetable, p->shm, p->shmkeymask);
@@ -278,7 +296,9 @@ void userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
-
+  acquire(&runq_lock);
+  runq_enqueue(p);
+  release(&runq_lock);
   release(&p->lock);
 }
 
@@ -372,6 +392,9 @@ int fork(void)
 
   np->state = RUNNABLE;
   np->trace_mask = p->trace_mask; // 从父进程复制trace mask到子进程
+  acquire(&runq_lock);
+  runq_enqueue(np);
+  release(&runq_lock);
   release(&np->lock);
 
   return pid;
@@ -652,73 +675,53 @@ void scheduler1(void)
     }
   }
 }
+// 进程调度器（O(1) 多级就绪队列，参考 Linux O(1) 调度器）。
+// 就绪进程按动态优先级进入 21 个优先级桶；调度时用位图 + ctz 位运算
+// 在常数时间内选中最高优先级非空桶的队头进程，并将该进程移出队列。
+// 相比原实现的 O(NPROC)=O(64) 全表扫描，决策路径由 O(n) 降为 O(1)，
+// 且单次决策只需获取 1 次就绪队列锁（原实现需逐一获取最多 64 个进程锁）。
 void scheduler(void)
 {
   struct proc *p;
-  struct proc *pmax; // 优先级最高的进程
   struct cpu *c = mycpu();
-  int priority_max; // 当前最高优先级
 
   c->proc = 0;
-
   for (;;)
   {
-    intr_on();         // 启用中断
-    pmax = 0;          // 重置优先级最高的进程
-    priority_max = -1; // 重置最高优先级
+    intr_on(); // 启用中断
 
-    // 遍历进程表
-    for (p = proc; p < &proc[NPROC]; p++)
+    // O(1) 选取：位图定位最高优先级非空桶 + 取队头
+    acquire(&runq_lock);
+    p = runq_pick();
+    release(&runq_lock);
+
+    if (p == 0)
     {
-      acquire(&p->lock);
-      if (p->state == RUNNABLE)
-      {
-        // 更新动态优先级
-        p->wait_time++; // 增加等待时间
-        p->dyn_priority = p->priority + (p->wait_time / 5) - (p->cpu_time / 5);
-
-        // 限制动态优先级范围在 [0, 20]
-        if (p->dyn_priority < 0)
-          p->dyn_priority = 0;
-        if (p->dyn_priority > 20)
-          p->dyn_priority = 20;
-
-        // 找到优先级更高的进程
-        if (p->dyn_priority > priority_max)
-        {
-          priority_max = p->dyn_priority;
-          pmax = p;
-        }
-      }
-
-      release(&p->lock);
-    }
-
-    // 如果没有找到 RUNNABLE 的进程，则进入低功耗等待模式
-    if (pmax == 0)
-    {
+      // 就绪队列为空，进入低功耗等待
       intr_on();
       asm volatile("wfi");
       continue;
     }
 
-    // 调度优先级最高的进程
-    acquire(&pmax->lock);
-    if (pmax->state == RUNNING)
+    acquire(&p->lock);
+    if (p->state != RUNNABLE)
     {
-      pmax->cpu_time = 0;
+      // 竞态兜底：进程已不在可运行态，放回队列下轮再取
+      release(&p->lock);
+      acquire(&runq_lock);
+      if (!p->on_runq)
+        runq_enqueue(p);
+      release(&runq_lock);
+      continue;
     }
-    if (pmax->state == RUNNABLE) // 再次确认状态
-    {
-      pmax->state = RUNNING;              // 设置为运行状态
-      pmax->wait_time = 0;                // 清零等待时间
-      c->proc = pmax;                     // 当前 CPU 正在运行的进程
-      swtch(&c->context, &pmax->context); // 切换到目标进程
+    p->state = RUNNING; // 设置为运行状态
+    p->wait_time = 0;   // 清零等待时间
+    c->proc = p;
+    swtch(&c->context, &p->context); // 切换到目标进程
 
-      // 切换回来时，重置 CPU 的当前运行进程
-      c->proc = 0;
-    }
-    release(&pmax->lock);
+    // 进程让出 CPU 后回到此处
+    c->proc = 0;
+    release(&p->lock);
   }
 }
 
@@ -754,6 +757,9 @@ void yield(void)
   struct proc *p = myproc();
   acquire(&p->lock);
   p->state = RUNNABLE;
+  acquire(&runq_lock);
+  runq_enqueue(p); // 重新进入就绪队列
+  release(&runq_lock);
   sched();
   release(&p->lock);
 }
@@ -826,6 +832,9 @@ void wakeup(void *chan)
     if (p->state == SLEEPING && p->chan == chan)
     {
       p->state = RUNNABLE;
+      acquire(&runq_lock);
+      runq_enqueue(p);
+      release(&runq_lock);
     }
     release(&p->lock);
   }
@@ -841,6 +850,9 @@ void wakeupOneProc(void *chan)
     if (p->state == SLEEPING && p->chan == chan)
     {
       p->state = RUNNABLE;
+      acquire(&runq_lock);
+      runq_enqueue(p);
+      release(&runq_lock);
       break; // 多加了这一步
     }
     release(&p->lock);
@@ -857,6 +869,9 @@ wakeup1(struct proc *p)
   if (p->chan == p && p->state == SLEEPING)
   {
     p->state = RUNNABLE;
+    acquire(&runq_lock);
+    runq_enqueue(p);
+    release(&runq_lock);
   }
 }
 
@@ -877,6 +892,9 @@ int kill(int pid)
       {
         // Wake process from sleep().
         p->state = RUNNABLE;
+        acquire(&runq_lock);
+        runq_enqueue(p);
+        release(&runq_lock);
       }
       release(&p->lock);
       return 0;
@@ -1017,6 +1035,9 @@ int clone(uint64 fcn, uint64 arg, uint64 stack)
   // 重新获取新进程的锁并将状态设置为 RUNNABLE，表示它可以被调度
   acquire(&np->lock);
   np->state = RUNNABLE;
+  acquire(&runq_lock);
+  runq_enqueue(np);
+  release(&runq_lock);
   // 释放进程锁
   release(&np->lock);
   return pid;  // 返回新进程的 PID

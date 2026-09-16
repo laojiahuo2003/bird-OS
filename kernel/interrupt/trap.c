@@ -227,26 +227,9 @@ void clockintr()
   wakeup(&ticks);
   release(&tickslock);
 
-  // struct proc *p;
-  //  // 遍历进程表，更新每个进程的等待时间和CPU时间
-  //  for (p = proc; p < &proc[NPROC]; p++)
-  //  {
-
-  //   acquire(&p->lock);
-  //   if (p->state == RUNNABLE)
-  //   {
-  //     p->wait_time++; // 增加等待时间
-  //     p->dyn_priority = p->priority + (p->wait_time / 5) - (p->cpu_time / 5);
-  //     // printf("PID: %d, wait_time: %d, cpu_time: %d, dyn_priority: %d\n", p->pid, p->wait_time, p->cpu_time, p->dyn_priority);
-  //   }
-  //   else if (p->state == RUNNING)
-  //   {
-  //     p->cpu_time++; // 增加CPU时间
-  //     p->dyn_priority = p->priority + (p->wait_time / 5) - (p->cpu_time / 5);
-  //     // printf("PID: %d, wait_time: %d, cpu_time: %d, dyn_priority: %d\n", p->pid, p->wait_time, p->cpu_time, p->dyn_priority);
-  //   }
-  //   release(&p->lock);
-  // }
+  // O(1) 调度器：每个时钟节拍执行一次老化（aging）：
+  // 就绪进程等待时间 +1、动态优先级更新并重新分桶、运行进程 CPU 时间 +1。
+  sched_tick();
 }
 
 // check if it's an external interrupt or software interrupt,
